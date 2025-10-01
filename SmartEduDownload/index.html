@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="icon" href="data\main.ico">
+    <title>智慧中小学教材下载器</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.8;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #007acc;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #005a9e;
+            border-bottom: 2px solid #dee2e6;
+            padding-bottom: 8px;
+            margin-top: 30px;
+        }
+        ul, ol {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+        li {
+            margin: 10px 0;
+        }
+        pre {
+            background: #f1f3f5;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            overflow-x: auto;
+            font-size: 14px;
+            color: #d63384;
+        }
+        code {
+            font-family: 'Courier New', monospace;
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #b52e31;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ffeaa7;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            color: #6c757d;
+            font-size: 14px;
+        }
+        .sparkle {
+            color: #ff6b6b;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <h1><img src="data/main.ico" alt="logo" width="30" height="30"> 智慧中小学教材下载器</h1>
+    <p class="subtitle">Latest v0.0.2 | 专为学习设计 · 非商业用途</p>
+
+    <p>本程序旨在帮助学生教师学习使用，仅用于教育研究目的。我们完全支持国家教育政策，尊重版权规范。</p>
+
+    <div class="warning">
+        ⚠️ <strong>重要声明：</strong>请勿将本工具用于任何商业用途！本程序仅供学习参考，不得传播非法内容或侵犯他人权益。
+    </div>
+
+    <h2>📌 主要功能</h2>
+    <ul>
+        <li>支持从“智慧中小学”平台解析并下载教材PDF</li>
+        <li>自动提取文件名，简化操作流程</li>
+        <li>流式下载，节省内存</li>
+        <li>增强异常处理，提升稳定性</li>
+        <li>兼容最新认证 headers 参数</li>
+    </ul>
+
+    <h2>🚀 使用方法</h2>
+    <ol>
+        <li>访问<a href="https://basic.smartedu.cn/tchMaterial" target="_blank">智慧中小学官网</a>，打开所需教材页面</li>
+        <li>按下 <code>F12</code> 或右键 → “检查” 打开开发者工具</li>
+        <li>切换到 <strong>网络(Network)</strong> 选项卡</li>
+        <li>筛选类型为 <strong>文档(Document)</strong>，并在搜索框输入 <code>pdf</code></li>
+        <li>刷新页面，找到对应的PDF请求条目</li>
+        <li>右键复制其 <strong>链接URL</strong></li>
+        <li>将完整链接粘贴至程序输入框中即可开始下载 ✨</li>
+    </ol>
+
+    <h2>🔧 程序下载</h2>
+    <ul>
+        <li>GitHub仓库：<a href="https://github.com/wmzb1002/SmartEduDownload">SmartEduDownload - GitHub</a></li>
+        <li>二进制包：<a href="data/main.exe">直链下载</a>
+                    <a href="https://www.123912.com/s/ypaOjv-FMyyh">网盘下载</a>
+        </li>
+    </ul>
+
+    <h2>📜 更新日志</h2>
+    <ul>
+        <li><strong>v0.0.2 (2025.9.26)</strong>
+            <ul>
+                <li>✅ 添加对 URL 中 headers 参数的自动解析</li>
+                <li>✅ 使用 <code>urllib</code> 替代 requests，减少依赖</li>
+                <li>✅ 实现流式下载（每次读取1024字节）</li>
+                <li>✅ 自动提取默认文件名</li>
+                <li>✅ 增强异常捕获机制</li>
+                <li>✅ 下载完成后延迟3秒退出</li>
+            </ul>
+        </li>
+        <li><strong>v0.0.1 (2025.9.10)</strong>
+            <ul>
+                <li>初始版本发布</li>
+                <li>需手动截取 file= 后的真实PDF地址</li>
+            </ul>
+        </li>
+    </ul>
+
+    <div class="warning">
+        🔐 <strong>安全提示：</strong>本程序不会收集任何用户数据。所有操作均在本地运行，不上传任何信息。
+    </div>
+
+</div>
+
+</body>
+</html>
