@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学习使用显微镜</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #FF8C00;
+            --secondary-color: #FFD700;
+            --accent-color: #FF4500;
+            --light-color: #FFF5E1;
+            --dark-color: #333;
+            --success-color: #4CAF50;
+            --encourage-color: #FF6B6B;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            line-height: 1.6;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23FFF5E1"/><path d="M0,0 L100,100 M100,0 L0,100" stroke="%23FFD700" stroke-width="1" stroke-opacity="0.1"/></svg>');
+            padding-bottom: 50px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 15px 0;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, transparent 20%, var(--secondary-color) 20%, var(--secondary-color) 21%, transparent 21%, transparent);
+            background-size: 10px 10px;
+            opacity: 0.1;
+            transform: rotate(30deg);
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.3rem;
+            color: white;
+            margin-bottom: 15px;
+        }
+        
+        .character-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+        }
+        
+        .intro {
+            background-color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            position: relative;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            border-left: 5px solid var(--primary-color);
+        }
+        
+        .intro::before {
+            content: """;
+            font-size: 5rem;
+            color: var(--primary-color);
+            position: absolute;
+            top: -20px;
+            left: 10px;
+            opacity: 0.2;
+        }
+        
+        .level {
+            background-color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            border: 2px solid var(--secondary-color);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .level::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        }
+        
+        .level-title {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            font-size: 1.6rem;
+        }
+        
+        .level-title::before {
+            content: "✓";
+            display: inline-block;
+            width: 35px;
+            height: 35px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 35px;
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .question {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+            position: relative;
+        }
+        
+        .question-number {
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            width: 30px;
+            height: 30px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+        }
+        
+        .question-text {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            color: #444;
+        }
+        
+        .answer-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-size: 1rem;
+            min-height: 80px;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+        
+        .answer-input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 5px rgba(255, 140, 0, 0.3);
+        }
+        
+        .submit-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+        
+        .submit-btn:hover {
+            background-color: var(--accent-color);
+        }
+        
+        .score-display {
+            display: inline-block;
+            margin-left: 15px;
+            font-weight: bold;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+            padding: 5px 10px;
+            background-color: #fff9e6;
+            border-radius: 4px;
+        }
+        
+        .fireworks {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #fff, #fff9e6);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+            z-index: 1001;
+            width: 80%;
+            max-width: 500px;
+            text-align: center;
+            display: none;
+            border: 3px solid var(--secondary-color);
+            animation: popIn 0.3s ease-out;
+        }
+        
+        @keyframes popIn {
+            0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+        
+        .modal h3 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 1.8rem;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: 777;
+        }
+        
+        .show-answers-btn {
+            background-color: var(--secondary-color);
+            color: var(--dark-color);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            display: none;
+        }
+        
+        .show-answers-btn:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .reset-btn {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            margin-left: 10px;
+        }
+        
+        .reset-btn:hover {
+            background-color: #5a6268;
+        }
+        
+        .total-score {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-top: 20px;
+            text-align: center;
+            padding: 15px;
+            background-color: #fff9e6;
+            border-radius: 8px;
+            border: 2px dashed var(--secondary-color);
+        }
+        
+        .buttons-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .final-score-container {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 15px;
+            color: white;
+            display: none;
+        }
+        
+        .final-score-title {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+        
+        .final-score-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .final-score-message {
+            font-size: 1.3rem;
+        }
+        
+        .save-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--success-color);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1000;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .buttons-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .reset-btn {
+                margin-left: 0;
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>运动达人练成记</h1>
+            <p class="subtitle">​​—AI智能体助力学习运动系统的成果测评​</p>
+        </header>
+        
+        <div class="character-container">
+            <div style="font-size: 5rem; color: var(--primary-color);"></div>
+        </div>
+        
+        <div class="intro">
+            <p>我们的身体本身就是一台精密的动力奇迹，而“运动系统”正是这奇迹的工程核心。它如同我们与生俱来的生命座驾，由坚硬的骨骼作为支撑框架，灵活的关节作为运转枢纽，强韧的肌肉作为驱动引擎。现在，就让我们一同启动这台无与伦比的躯体，探索它如何让我们在空间中自由驰骋，感受运动与力量的美妙法则。</p>
+        </div>
+        
+        <div class="level" id="level1">
+            <h2 class="level-title">通关一：认识运动系统的组成</h2>
+            
+            <div class="questions" id="questions-level1">
+                <!-- 问题将在这里动态生成 -->
+            </div>
+            
+            <div class="buttons-container">
+                <button class="show-answers-btn" id="show-answers-1" onclick="showAnswers(1)">查看答案</button>
+                <button class="reset-btn" onclick="resetLevel(1)">重新答题</button>
+            </div>
+            
+            <div class="total-score">总分: <span id="total-score-1">0</span>/30</div>
+        </div>
+        
+        <div class="level" id="level2">
+            <h2 class="level-title">通关二：运动式如何产生的</h2>
+            
+            <div class="questions" id="questions-level2">
+                <!-- 问题将在这里动态生成 -->
+            </div>
+            
+            <div class="buttons-container">
+                <button class="show-answers-btn" id="show-answers-2" onclick="showAnswers(2)">查看答案</button>
+                <button class="reset-btn" onclick="resetLevel(2)">重新答题</button>
+            </div>
+            
+            <div class="total-score">总分: <span id="total-score-2">0</span>/30</div>
+        </div>
+        
+        <!-- 最终得分显示区域 -->
+        <div class="final-score-container" id="final-score-container">
+            <h2 class="final-score-title">最终得分</h2>
+            <div class="final-score-value" id="final-score-value">0</div>
+            <div class="final-score-message" id="final-score-message"></div>
+        </div>
+    </div>
+    
+    <div class="fireworks" id="fireworks"></div>
+    
+    <div class="modal" id="result-modal">
+        <button class="close-btn" onclick="closeModal()">×</button>
+        <h3 id="modal-title">结果</h3>
+        <div id="modal-content"></div>
+    </div>
+
+    <div class="save-indicator" id="save-indicator">答案已自动保存</div>
+
+    <script>
+        // 问题数据
+        const questions = {
+            level1: [
+                {
+                    question: "运动系统由哪几部分组成？",
+                    answer: "骨、关节、肌肉",
+                    scoring: { "骨": 2.5,"关节": 2.5,"肌肉": 2.5 },
+                    maxScore: 7.5,
+                    userScore: 0,
+                    userAnswer: "",
+                    answered: false
+                },
+                {
+                    question: "骨与骨之间通过关节等结构相连形成什么？",
+                    answer: "骨骼",
+                    scoring: { "骨骼": 2.5 },
+                    maxScore: 2.5,
+                    userScore: 0,
+                    userAnswer: "",
+                    answered: false
+                },
+                {
+                    question: "回答关节由哪三部分组成？",
+                    answer: "关节面，关节囊，关节腔",
+                    scoring: { "关节面": 2.5,"关节囊": 2.5,"关节腔": 2.5 },
+                    maxScore: 7.5,
+                    userScore: 0,
+                    userAnswer: "",
+                    answered: false
+                },
+                {
+                    question: "关节面包含哪几部分？",
+                    answer: "关节头；关节窝；关节软骨",
+                    scoring: { "关节头": 2.5, "关节窝": 2.5, "关节软骨": 2.5},
+                    maxScore: 7.5,
+                    userScore: 0,
+                    userAnswer: "",
+                    answered: false
+                },
+                {
+                    question: "骨骼肌包括哪几部分？",
+                    answer: "肌腱；肌腹",
+                    scoring: { "肌腱":2.5, "肌腹":2.5 },
+                    maxScore: 5,
+                    userScore: 0,
+                    userAnswer: "",
+                    answered: false
+                }
+            ],
+            level2: [
+                {
+                    question: "解剖一个完整鸡翅的步骤",
+                    answer: "去鸡皮，暴露出内部结构；观察肌肉结构；观察骨的运动；观察关节结构",
+                    scoring: { "鸡皮": 5,"肌肉结构": 5,"骨": 5,"关节结构": 5},
+                    maxScore: 10,
+                    userScore: 0,
+                    userAnswer: "",
+                    answered: false
+                },
+  		{
+                    question: "肌肉的两端附着在同一块骨上，还是不同块骨上？",
+                    answer: "不同",
+                    scoring: { "不同": 5},
+                    maxScore: 5,
+                    userScore: 0,
+                    userAnswer: "",
+                    answered: false
+                },
+		{
+                    question: "关节对骨的运动有什么意义？",
+                    answer: "关节使骨与骨之间牢固连接，也使骨的运动更加灵活",
+                    scoring: { "连接": 5 },
+                    maxScore: 5,
+                    userScore: 0,
+                    userAnswer: "",
+                    answered: false
+                },
+                {
+                    question: "骨、关节和肌肉在结构上有什么关系？",
+                    answer: "骨与骨之间多以关节相连，肌肉附着在骨上",
+                    scoring: { "连": 2,"附着":3 },
+                    maxScore: 5,
+                    userScore: 0,
+                    userAnswer: "",
+                    answered: false
+                },
+                {
+                    question: "骨、关节和肌肉如何配合产生运动？",
+                    answer: "肌肉牵动骨绕关节活动产生运动",
+                    scoring: { "牵动": 2,"骨绕关节":3 },
+                    maxScore: 5,
+                    userScore: 0,
+                    userAnswer: "",
+                    answered: false
+                }
+            ]
+        };
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            // 生成问题
+            generateQuestions('level1', questions.level1);
+            generateQuestions('level2', questions.level2);
+            
+            // 加载保存的数据
+            loadSavedData();
+        });
+
+        // 加载保存的数据
+        function loadSavedData() {
+            const savedData = localStorage.getItem('microscopeQuizData');
+            if (savedData) {
+                const parsedData = JSON.parse(savedData);
+                
+                // 恢复问题数据
+                if (parsedData.level1) {
+                    questions.level1.forEach((q, i) => {
+                        if (parsedData.level1[i]) {
+                            q.userAnswer = parsedData.level1[i].userAnswer;
+                            q.userScore = parsedData.level1[i].userScore;
+                            q.answered = parsedData.level1[i].answered;
+                        }
+                    });
+                }
+                
+                if (parsedData.level2) {
+                    questions.level2.forEach((q, i) => {
+                        if (parsedData.level2[i]) {
+                            q.userAnswer = parsedData.level2[i].userAnswer;
+                            q.userScore = parsedData.level2[i].userScore;
+                            q.answered = parsedData.level2[i].answered;
+                        }
+                    });
+                }
+                
+                // 更新UI
+                updateQuestionsUI('level1');
+                updateQuestionsUI('level2');
+                
+                // 更新总分
+                updateTotalScore('level1');
+                updateTotalScore('level2');
+                
+                // 检查是否所有问题都已回答
+                checkAllAnswered('level1');
+                checkAllAnswered('level2');
+                
+                // 检查是否显示最终得分
+                checkFinalScore();
+            }
+        }
+
+        // 更新问题UI
+        function updateQuestionsUI(levelId) {
+            const questionsContainer = document.getElementById(`questions-${levelId}`);
+            const questionElements = questionsContainer.querySelectorAll('.question');
+            
+            questions[levelId].forEach((q, index) => {
+                if (index < questionElements.length) {
+                    const answerInput = questionElements[index].querySelector('.answer-input');
+                    const scoreDisplay = questionElements[index].querySelector('.score-display');
+                    
+                    if (answerInput) {
+                        answerInput.value = q.userAnswer || "";
+                    }
+                    if (scoreDisplay) {
+                        scoreDisplay.textContent = `得分: ${q.userScore}/${q.maxScore}`;
+                    }
+                }
+            });
+        }
+
+        // 保存数据到本地存储
+        function saveData() {
+            const dataToSave = {
+                level1: questions.level1.map(q => ({
+                    userAnswer: q.userAnswer,
+                    userScore: q.userScore,
+                    answered: q.answered
+                })),
+                level2: questions.level2.map(q => ({
+                    userAnswer: q.userAnswer,
+                    userScore: q.userScore,
+                    answered: q.answered
+                }))
+            };
+            
+            localStorage.setItem('microscopeQuizData', JSON.stringify(dataToSave));
+            
+            // 显示保存提示
+            showSaveIndicator();
+        }
+
+        // 显示保存提示
+        function showSaveIndicator() {
+            const indicator = document.getElementById('save-indicator');
+            indicator.style.opacity = '1';
+            
+            setTimeout(() => {
+                indicator.style.opacity = '0';
+            }, 2000);
+        }
+
+        // 生成问题HTML
+        function generateQuestions(levelId, questionsData) {
+            const questionsContainer = document.getElementById(`questions-${levelId}`);
+            questionsContainer.innerHTML = '';
+            
+            questionsData.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question';
+                
+                let questionHTML = `
+                    <div class="question-number">${index + 1}</div>
+                    <div class="question-text">${q.question}</div>
+                    <textarea class="answer-input" rows="3" placeholder="请输入你的答案..." data-level="${levelId}" data-index="${index}">${q.userAnswer}</textarea>
+                    <button class="submit-btn" onclick="checkAnswer('${levelId}', ${index})">提交答案</button>
+                    <span class="score-display">得分: ${q.userScore}/${q.maxScore}</span>
+                `;
+                
+                questionDiv.innerHTML = questionHTML;
+                questionsContainer.appendChild(questionDiv);
+            });
+        }
+
+        // 检查答案
+        function checkAnswer(levelId, questionIndex) {
+            const answerInput = document.querySelector(`textarea[data-level="${levelId}"][data-index="${questionIndex}"]`);
+            const userAnswer = answerInput.value.trim();
+            const question = questions[levelId][questionIndex];
+            
+            // 保存用户答案
+            question.userAnswer = userAnswer;
+            question.answered = true;
+            
+            // 计算得分
+            let score = 0;
+            for (const [keyword, point] of Object.entries(question.scoring)) {
+                if (userAnswer.includes(keyword)) {
+                    score += point;
+                    // 如果已经得到满分，跳出循环
+                    if (score >= question.maxScore) {
+                        score = question.maxScore;
+                        break;
+                    }
+                }
+            }
+            
+            // 确保不超过最大分数
+            score = Math.min(score, question.maxScore);
+            question.userScore = score;
+            
+            // 更新显示
+            const scoreDisplay = answerInput.nextElementSibling.nextElementSibling;
+            scoreDisplay.textContent = `得分: ${score}/${question.maxScore}`;
+            
+            // 显示结果弹窗
+            showResult(score === question.maxScore ? "你太棒了！" : "继续加油！", score, question.maxScore);
+            
+            // 更新总分
+            updateTotalScore(levelId);
+            
+            // 检查是否所有问题都已回答
+            checkAllAnswered(levelId);
+            
+            // 保存数据到本地存储
+            saveData();
+            
+            // 检查是否显示最终得分
+            checkFinalScore();
+        }
+
+        // 检查是否所有问题都已回答
+        function checkAllAnswered(levelId) {
+            const allAnswered = questions[levelId].every(q => q.answered);
+            if (allAnswered) {
+                document.getElementById(`show-answers-${levelId.charAt(levelId.length-1)}`).style.display = 'block';
+            }
+        }
+
+        // 检查并显示最终得分
+        function checkFinalScore() {
+            const level1Answered = questions.level1.every(q => q.answered);
+            const level2Answered = questions.level2.every(q => q.answered);
+            
+            if (level1Answered && level2Answered) {
+                const totalScore1 = questions.level1.reduce((sum, q) => sum + q.userScore, 0);
+                const totalScore2 = questions.level2.reduce((sum, q) => sum + q.userScore, 0);
+                const finalScore = totalScore1 + totalScore2;
+                
+                const finalScoreContainer = document.getElementById('final-score-container');
+                const finalScoreValue = document.getElementById('final-score-value');
+                const finalScoreMessage = document.getElementById('final-score-message');
+                
+                finalScoreValue.textContent = finalScore;
+                
+                if (finalScore === 60) {
+                    finalScoreMessage.textContent = "恭喜完美通关！";
+                } else if (finalScore >= 50) {
+                    finalScoreMessage.textContent = "加油，争取完美通关！";
+                } else {
+                    finalScoreMessage.textContent = "加油，仍需继续努力！";
+                }
+                
+                finalScoreContainer.style.display = 'block';
+                
+                // 显示烟花效果
+                showFireworks();
+            }
+        }
+
+        // 显示结果弹窗
+        function showResult(message, score, maxScore) {
+            const modal = document.getElementById('result-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalContent = document.getElementById('modal-content');
+            
+            modalTitle.textContent = message;
+            modalTitle.style.color = score === maxScore ? 'var(--success-color)' : 'var(--encourage-color)';
+            modalContent.innerHTML = `
+                <p style="font-size: 1.2rem; margin: 15px 0;">你的得分: <strong>${score}/${maxScore}</strong></p>
+            `;
+            
+            modal.style.display = 'block';
+            
+            // 如果是满分，显示烟花效果
+            if (score === maxScore) {
+                showFireworks();
+            }
+            
+            // 2秒后自动关闭
+            setTimeout(() => {
+                if (modal.style.display === 'block') {
+                    modal.style.display = 'none';
+                }
+            }, 2000);
+        }
+
+        // 关闭弹窗
+        function closeModal() {
+            document.getElementById('result-modal').style.display = 'none';
+        }
+
+        // 显示烟花效果
+        function showFireworks() {
+            const fireworks = document.getElementById('fireworks');
+            fireworks.style.display = 'block';
+            
+            // 简单的烟花效果实现
+            fireworks.innerHTML = '';
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.style.position = 'absolute';
+                particle.style.width = '15px';
+                particle.style.height = '15px';
+                particle.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                particle.style.borderRadius = '50%';
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.top = `${Math.random() * 100}%`;
+                particle.style.animation = `firework 1s ease-out forwards`;
+                fireworks.appendChild(particle);
+            }
+            
+            setTimeout(() => {
+                fireworks.style.display = 'none';
+            }, 2000);
+        }
+
+        // 更新总分
+        function updateTotalScore(levelId) {
+            const totalScore = questions[levelId].reduce((sum, q) => sum + q.userScore, 0);
+            document.getElementById(`total-score-${levelId.charAt(levelId.length-1)}`).textContent = totalScore;
+            
+            // 如果满分，显示特殊消息
+            const maxScore = levelId === 'level1' ? 50 : 50;
+            if (totalScore === maxScore) {
+                setTimeout(() => {
+                    showResult("恭喜通关成功！", totalScore, maxScore);
+                }, 500);
+            }
+        }
+
+        // 重置关卡
+        function resetLevel(levelNum) {
+            const levelId = `level${levelNum}`;
+            questions[levelId].forEach((q, index) => {
+                q.userScore = 0;
+                q.userAnswer = "";
+                q.answered = false;
+                
+                const answerInput = document.querySelector(`textarea[data-level="${levelId}"][data-index="${index}"]`);
+                if (answerInput) {
+                    answerInput.value = "";
+                }
+                
+                const scoreDisplay = answerInput ? answerInput.nextElementSibling.nextElementSibling : null;
+                if (scoreDisplay) {
+                    scoreDisplay.textContent = `得分: 0/${q.maxScore}`;
+                }
+            });
+            
+            document.getElementById(`total-score-${levelNum}`).textContent = "0";
+            document.getElementById(`show-answers-${levelNum}`).style.display = 'none';
+            document.getElementById('final-score-container').style.display = 'none';
+            
+            // 保存重置后的数据
+            saveData();
+            
+            showResult("已重置答题状态！", 0, 0);
+        }
+
+        // 显示答案
+        function showAnswers(levelNum) {
+            const levelId = `level${levelNum}`;
+            let answers = '';
+            
+            if (levelNum === 1) {
+                answers = `
+                    <div style="text-align: left; max-height: 60vh; overflow-y: auto;">
+                        <p><strong>问题1:</strong> 骨，关节，肌肉</p>
+                        <p><strong>问题2:</strong> 骨骼</p>
+                        <p><strong>问题3:</strong> 关节面，关节囊，关节腔</p>
+                        <p><strong>问题4:</strong> 关节头，关节窝，关节软骨</p>
+                        <p><strong>问题5:</strong> 肌腱，肌腹</p>
+                    </div>
+                `;
+            } else {
+                answers = `
+                    <div style="text-align: left; max-height: 60vh; overflow-y: auto;">
+			<p><strong>问题1:</strong> 去鸡皮，暴露出内部结构；观察肌肉结构；观察骨的运动；观察关节结构</p>
+			<p><strong>问题2:</strong> 不同块骨上</p>
+                        <p><strong>问题3:</strong> 关节使骨与骨之间牢固连接，也使骨的运动更加灵活</p>
+                        <p><strong>问题4:</strong> 骨与骨之间多以关节相连，肌肉附着在骨上</p>
+                        <p><strong>问题5:</strong> 肌肉牵动骨绕关节活动产生运动</p>
+                    </div>
+                `;
+
+            }
+            
+            const modal = document.getElementById('result-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalContent = document.getElementById('modal-content');
+            
+            modalTitle.textContent = `关卡${levelNum}答案`;
+            modalTitle.style.color = 'var(--primary-color)';
+            modalContent.innerHTML = `
+                ${answers}
+                <p style="margin-top: 15px; font-weight: bold; font-size: 1.2rem;">总分: ${document.getElementById(`total-score-${levelNum}`).textContent}/30</p>
+            `;
+            
+            modal.style.display = 'block';
+        }
+
+        // 添加CSS动画
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes firework {
+                0% { transform: translate(极光, 0) scale(0); opacity: 1; }
+                50% { opacity: 1; }
+                100% { transform: translate(var(--x), var(--y)) scale(1); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
