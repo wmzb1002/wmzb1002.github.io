@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>学习使用显微镜</title>
+<!--    <title>学习使用显微镜</title>-->
+    <title>运动系统自主学习</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
@@ -94,7 +95,7 @@
         }
         
         .intro::before {
-            content: """;
+            content: "";
             font-size: 5rem;
             color: var(--primary-color);
             position: absolute;
@@ -148,14 +149,14 @@
             font-size: 1.2rem;
         }
         
-        .question {
-            margin: 20px 0;
-            padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 8px;
-            border-left: 4px solid var(--primary-color);
-            position: relative;
-        }
+        /*.question {*/
+        /*    margin: 20px 0;*/
+        /*    padding: 20px;*/
+        /*    background-color: #f9f9f9;*/
+        /*    border-radius: 8px;*/
+        /*    border-left: 4px solid var(--primary-color);*/
+        /*    position: relative;*/
+        /*}*/
         
         .question-number {
             position: absolute;
@@ -272,7 +273,7 @@
             border: none;
             font-size: 1.5rem;
             cursor: pointer;
-            color: 777;
+            color: #777;
         }
         
         .show-answers-btn {
@@ -662,16 +663,15 @@
             questionsData.forEach((q, index) => {
                 const questionDiv = document.createElement('div');
                 questionDiv.className = 'question';
-                
-                let questionHTML = `
+
+                questionDiv.innerHTML = `
                     <div class="question-number">${index + 1}</div>
                     <div class="question-text">${q.question}</div>
                     <textarea class="answer-input" rows="3" placeholder="请输入你的答案..." data-level="${levelId}" data-index="${index}">${q.userAnswer}</textarea>
                     <button class="submit-btn" onclick="checkAnswer('${levelId}', ${index})">提交答案</button>
                     <span class="score-display">得分: ${q.userScore}/${q.maxScore}</span>
                 `;
-                
-                questionDiv.innerHTML = questionHTML;
+
                 questionsContainer.appendChild(questionDiv);
             });
         }
@@ -864,19 +864,12 @@
 
         // 显示答案
         function showAnswers(levelNum) {
-            const levelId = `level${levelNum}`;
-            let answers = '';
-            
+            // const levelId = `level${levelNum}`;
+            let answers;
+            // answers = '';
+
             if (levelNum === 1) {
-                answers = `
-                    <div style="text-align: left; max-height: 60vh; overflow-y: auto;">
-                        <p><strong>问题1:</strong> 骨，关节，肌肉</p>
-                        <p><strong>问题2:</strong> 骨骼</p>
-                        <p><strong>问题3:</strong> 关节面，关节囊，关节腔</p>
-                        <p><strong>问题4:</strong> 关节头，关节窝，关节软骨</p>
-                        <p><strong>问题5:</strong> 肌腱，肌腹</p>
-                    </div>
-                `;
+                answers = `\n                    <div style="text-align: left; max-height: 60vh; overflow-y: auto;">\n                        <p><strong>问题1:</strong> 骨，关节，肌肉</p>\n                        <p><strong>问题2:</strong> 骨骼</p>\n                        <p><strong>问题3:</strong> 关节面，关节囊，关节腔</p>\n                        <p><strong>问题4:</strong> 关节头，关节窝，关节软骨</p>\n                        <p><strong>问题5:</strong> 肌腱，肌腹</p>\n                    </div>\n                `;
             } else {
                 answers = `
                     <div style="text-align: left; max-height: 60vh; overflow-y: auto;">
