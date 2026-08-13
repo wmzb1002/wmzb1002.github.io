@@ -1,3 +1,13 @@
+# This script is hosted on <b>https://get.activated.win</b> for <b>https://massgrave.dev</b><br><br>
+# Having trouble launching this script? Check <a href="https://massgrave.dev">https://massgrave.dev</a> for help.<hr><pre>
+
+if (-not $args) {
+    Write-Host ''
+    Write-Host 'Need help? Check our homepage: ' -NoNewline
+    Write-Host 'https://massgrave.dev' -ForegroundColor Green
+    Write-Host ''
+}
+
 & {
     $psv = (Get-Host).Version.Major
     $troubleshoot = 'https://massgrave.dev/troubleshoot'
