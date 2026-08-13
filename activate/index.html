@@ -1,16 +1,66 @@
-# 如果命令不起效果，可尝试
-<a id="downloadLink" download="MAS_AIO.ps1">下载脚本</a>后在本地运行。
-<script>
-document.getElementById('downloadLink').addEventListener('click', function(e) {
-    // 假设脚本内容在变量scriptContent中
-    var scriptContent = `...`; // 替换为实际内容
-    var blob = new Blob([scriptContent], {type: 'text/plain;charset=utf-8'});
-    var url = URL.createObjectURL(blob);
-    this.href = url;
-    // 可选，下载后撤销URL
-});
-</script>
+<#
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>下载脚本</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f5f5f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center; max-width: 600px; }
+        h1 { color: #333; }
+        p { color: #666; }
+        .btn { display: inline-block; padding: 14px 40px; background: #0078d7; color: white; font-size: 18px; border-radius: 6px; text-decoration: none; border: none; cursor: pointer; transition: background 0.2s; }
+        .btn:hover { background: #005a9e; }
+        .note { margin-top: 20px; font-size: 13px; color: #888; }
+        pre { background: #f0f0f0; padding: 10px; border-radius: 4px; text-align: left; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>📥 下载激活脚本</h1>
+        <p>如果在线安装失败（`irm | iex` 无法使用），请点击下方按钮下载脚本文件，然后在 PowerShell 中以管理员身份执行它。</p>
+        <button class="btn" onclick="downloadScript()">⬇ 下载脚本 (MAS_AIO.ps1)</button>
+        <p class="note">下载后请将文件保存为 <code>.ps1</code> 后缀，然后右键选择“使用 PowerShell 运行”。</p>
+        <hr>
+        <p style="font-size:14px;color:#555;">脚本说明：<br>本脚本用于下载并运行 Microsoft Activation Scripts (MAS) 的 AIO 版本。</p>
+    </div>
 
+    <script>
+        function downloadScript() {
+            // 获取当前页面的完整源码
+            fetch(window.location.href)
+                .then(response => response.text())
+                .then(html => {
+                    // 提取 #> 之后的所有内容（即纯 PowerShell 脚本）
+                    const scriptStart = html.indexOf('#>');
+                    if (scriptStart === -1) {
+                        alert('未找到脚本内容');
+                        return;
+                    }
+                    let script = html.substring(scriptStart + 2); // 去掉 #>
+                    // 去掉可能的前后空白
+                    script = script.trim();
+                    // 创建 Blob 并下载
+                    const blob = new Blob([script], { type: 'text/plain;charset=utf-8' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'MAS_AIO.ps1';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                })
+                .catch(err => {
+                    alert('下载失败，请手动复制脚本内容：' + err);
+                });
+        }
+    </script>
+</body>
+</html>
+#>
+
+# =============== 以下为真正的 PowerShell 脚本 ===============
 & {
     $psv = (Get-Host).Version.Major
     $troubleshoot = 'https://massgrave.dev/troubleshoot'
@@ -55,7 +105,8 @@ document.getElementById('downloadLink').addEventListener('click', function(e) {
     try { [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 } catch {}
 
     $URLs = @(
-        'https://wmzb.us.ci/activate/MAS_AIO.cmd'
+        'https://wmzb.us.ci/activate/MAS_AIO.bat',
+        'https://git.activated.win/Microsoft-Activation-Scripts/plain/MAS/All-In-One-Version-KL/MAS_AIO.cmd?id=05c4f881efec946c0040cdd552d1afa9a519704b'
     )
     Write-Progress -Activity "Downloading..." -Status "Please wait"
     $errors = @()
@@ -87,7 +138,6 @@ document.getElementById('downloadLink').addEventListener('click', function(e) {
         return
     }
 
-    # Verify script integrity
     $releaseHash = '850F979665FB93999ACAE93F4790C1FF8ED2041532060B7966A121C2D29A0BFA'
     $stream = New-Object IO.MemoryStream
     $writer = New-Object IO.StreamWriter $stream
@@ -101,7 +151,6 @@ document.getElementById('downloadLink').addEventListener('click', function(e) {
         return
     }
 
-    # Check for AutoRun registry which may create issues with CMD
     $paths = "HKCU:\SOFTWARE\Microsoft\Command Processor", "HKLM:\SOFTWARE\Microsoft\Command Processor"
     foreach ($path in $paths) { 
         if (Get-ItemProperty -Path $path -Name "Autorun" -ErrorAction SilentlyContinue) { 
