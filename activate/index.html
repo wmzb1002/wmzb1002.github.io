@@ -1,47 +1,5 @@
-<#
-        #<button class="btn" onclick="downloadFullPage()">⬇下载</button>
-    <script>
-        function downloadFullPage() {
-            // 方法1：使用 fetch 获取当前页面的原始源码（最准确，包含 <!DOCTYPE> 和所有内容）
-            fetch(window.location.href)
-                .then(response => response.text())
-                .then(html => {
-                    // 直接下载整个页面源码
-                    const blob = new Blob([html], { type: 'text/plain;charset=utf-8' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'MAS_AIO.ps1';  // 保持 .ps1 后缀，方便 PowerShell 识别
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-                })
-                .catch(err => {
-                    // 如果 fetch 失败（例如文件协议），使用备用方法
-                    alert('fetch 失败，使用备用方法下载...');
-                    fallbackDownload();
-                });
-        }
-
-        function fallbackDownload() {
-            // 备用方法：使用 document.documentElement.outerHTML，并补上 DOCTYPE
-            const doctype = '<!DOCTYPE html>\n';
-            const html = doctype + document.documentElement.outerHTML;
-            const blob = new Blob([html], { type: 'text/plain;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'MAS_AIO.ps1';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-    </script>
-#>
-
-# =============== 以下为真正的 PowerShell 脚本 ===============
+#<button class="btn" onclick="downloadFullPage()">⬇下载</button>
+    
 & {
     $psv = (Get-Host).Version.Major
     $troubleshoot = 'https://massgrave.dev/troubleshoot'
@@ -166,3 +124,45 @@
     CheckFile $FilePath
     Remove-Item -Path $FilePath
 } @args
+
+<#
+<script>
+        function downloadFullPage() {
+            // 方法1：使用 fetch 获取当前页面的原始源码（最准确，包含 <!DOCTYPE> 和所有内容）
+            fetch(window.location.href)
+                .then(response => response.text())
+                .then(html => {
+                    // 直接下载整个页面源码
+                    const blob = new Blob([html], { type: 'text/plain;charset=utf-8' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'MAS_AIO.ps1';  // 保持 .ps1 后缀，方便 PowerShell 识别
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                })
+                .catch(err => {
+                    // 如果 fetch 失败（例如文件协议），使用备用方法
+                    alert('fetch 失败，使用备用方法下载...');
+                    fallbackDownload();
+                });
+        }
+
+        function fallbackDownload() {
+            // 备用方法：使用 document.documentElement.outerHTML，并补上 DOCTYPE
+            const doctype = '<!DOCTYPE html>\n';
+            const html = doctype + document.documentElement.outerHTML;
+            const blob = new Blob([html], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'MAS_AIO.ps1';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+#>
