@@ -1,0 +1,187 @@
+{
+  "name": "机械动力",
+  "author": "czh_1102",
+  "version": "91.78.13.67.Pro.Max.Ultra.X",
+  "description": "",
+  "fileApi": "http://wmzb.us.ci/Minecraft/modpacks/机械动力",
+  "files": [
+    {
+      "path": "mods/mcwifipnp-1.9.0-1.21-neoforge.jar",
+      "hash": "d03f342db41c738252cb9fa932c77616ac1d5ebc"
+    },
+    {
+      "path": "mods/ritchiesprojectilelib-2.1.2+mc.1.21.1-neoforge.jar",
+      "hash": "ec2e4996f8bee8714173e603e379fef8a6901765"
+    },
+    {
+      "path": "mods/create-central-kitchen-2.5.0.jar",
+      "hash": "caa89b624caad7a9304872a236e74ea4c143972c"
+    },
+    {
+      "path": "mods/jei-1.21.1-neoforge-19.39.0.370.jar",
+      "hash": "b6d4e2b65720a50c82a6b4d52e00cefd561604e5"
+    },
+    {
+      "path": "mods/FarmersDelight-1.21.1-1.3.2.jar",
+      "hash": "bf7e7dede99e832de20e191b1f6c11f7a9b9a622"
+    },
+    {
+      "path": "mods/MaidUseHandCrank_1.6.2-neoforge_21.1.219-1.21.1.jar",
+      "hash": "b6105222645e2946bb93186d133e8e03baa61e88"
+    },
+    {
+      "path": "mods/create_connected-1.3.2-mc1.21.1.jar",
+      "hash": "920de05b13c32fe1417d0aec0615057aa480cc8d"
+    },
+    {
+      "path": "mods/curios-neoforge-9.5.1+1.21.1.jar",
+      "hash": "418fcd42e3a7844c9bdc71c9b6401fdb3894e0c4"
+    },
+    {
+      "path": "mods/L_Ender\u0027s Cataclysm 1.21.1-3.32.jar",
+      "hash": "f16c6bf69232ebdf85cc861450a8dd5def310e5b"
+    },
+    {
+      "path": "mods/lionfishapi-3.1.jar",
+      "hash": "353ca00ed118eb67cf11085abbbd699884722326"
+    },
+    {
+      "path": "mods/createdieselgenerators-1.21.1-1.3.15.jar",
+      "hash": "7f751dabfa83c141c1d13025cd16f06553ba459b"
+    },
+    {
+      "path": "mods/Jade-1.21.1-NeoForge-15.10.6.jar",
+      "hash": "88ee316e68900080b017f60c12162e2731924cf8"
+    },
+    {
+      "path": "mods/sablejade-1.3.0.jar",
+      "hash": "beb78d81a4d5768780c8566fa869ced5dbe08263"
+    },
+    {
+      "path": "mods/create_copper_and_zinc-2.0.0-neoforge-1.21.1.jar",
+      "hash": "de1f363ef0ec8aeb6a9dedc1f3d8b3e224400895"
+    },
+    {
+      "path": "mods/create_ultimate_factory-2.2.4-neoforge-1.21.1.jar",
+      "hash": "ed0ff71df9bfe3b66b97c51a2834031084300a65"
+    },
+    {
+      "path": "mods/create-1.21.1-6.0.10.jar",
+      "hash": "0e97e49837bed766e6f28a4c95b04885d6acc353"
+    },
+    {
+      "path": "mods/create-aeronautics-bundled-1.21.1-1.3.0.jar",
+      "hash": "a2b08963ebc9f331f52c626aebcd65013e100d69"
+    },
+    {
+      "path": "mods/createbigcannons-5.11.7+mc.1.21.1.jar",
+      "hash": "c90ee0b2142e2c58d233e150cb3a24c7cb07eb2d"
+    },
+    {
+      "path": "mods/CreateDragonsPlus-1.11.3.jar",
+      "hash": "37e2373216b70893409d2baeae86b02c2bfa65bc"
+    },
+    {
+      "path": "mods/createnuclear-1.3.2-beta.3-neoforge.jar",
+      "hash": "c4349006fd07e614b0de3c5982d7f0d0a818c98c"
+    },
+    {
+      "path": "mods/CustomSkinLoader_Universal-15.0.1.jar",
+      "hash": "ab8dd841cafc3b4ecbf0250d3f5aee8a1fdb506a"
+    },
+    {
+      "path": "mods/iris-neoforge-1.8.14-beta.1+mc1.21.1.jar",
+      "hash": "1bd129cf7bce65d6b1c0543045f0620c98a0f885"
+    },
+    {
+      "path": "mods/maid_chunk_loader-neoforge-1.21.1-1.0.3.jar",
+      "hash": "8d5588fb3278e07b1097964cb24ff512d97d043c"
+    },
+    {
+      "path": "mods/touhoulittlemaid-1.5.3-neoforge+mc1.21.1.jar",
+      "hash": "f96507810deaa2ffd8c3bd86a79d6ccbd56ca32e"
+    },
+    {
+      "path": "mods/sodium-neoforge-0.8.13-beta.1+mc1.21.1.jar",
+      "hash": "f868ab0a037d1211fabd31b2f42a2862b8e6c669"
+    },
+    {
+      "path": "mods/travelersbackpack-neoforge-1.21.1-10.1.36.jar",
+      "hash": "8d51b854d941b2d635b8dd6f70f8f8197a266fd3"
+    },
+    {
+      "path": "mods/xaerominimap-neoforge-1.21.1-26.4.2.jar",
+      "hash": "21b3232e62dabcbb5bf28866481e8de2c0ccb780"
+    },
+    {
+      "path": "mods/xaeroworldmap-neoforge-1.21.1-1.44.2.jar",
+      "hash": "beea95c1a2ca78e1a6ca0a0ddc7770672101fb60"
+    },
+    {
+      "path": "mods/createpropulsion-1.1.5.jar",
+      "hash": "928e9428ee92d07426c296b04a7fffb1e737e290"
+    },
+    {
+      "path": "mods/MouseTweaks-neoforge-mc1.21-2.26.1.jar",
+      "hash": "6dae57f4f50f7808d2ed9a18f6cd1c0d4640c6bc"
+    },
+    {
+      "path": "mods/copycats-3.0.8+mc.1.21.1-neoforge.jar",
+      "hash": "ee0cddd7053622aa0a6964e7367bd69795273e7d"
+    },
+    {
+      "path": "mods/interiors-1.21.1-neoforge-0.6.1.jar",
+      "hash": "a558777ef4510da2f4d32ca3da6ac7384c9a9940"
+    },
+    {
+      "path": "mods/create_afn.jar",
+      "hash": "6ff0d3823a7e16f96b1f49e847cd88a530bfac12"
+    },
+    {
+      "path": "mods/sable-neoforge-1.21.1-2.0.5.jar",
+      "hash": "05f666e973d32baaaf405acb9bbed6615b909971"
+    },
+    {
+      "path": "mods/sablecat-1.0.1.jar",
+      "hash": "e96e53e59f4f76399721fff4accfaf541a760c87"
+    },
+    {
+      "path": "mods/kaleidoscopetavern-1.2.0-neoforge+mc1.21.1.jar",
+      "hash": "bf026cb97921749adf6155181d2f9639d37a7261"
+    },
+    {
+      "path": "mods/kaleidoscopecookery-1.5.0-neoforge+mc1.21.1.jar",
+      "hash": "a08d431b4ef00be6122ccc5299fa8cf720bd5af5"
+    },
+    {
+      "path": "mods/tracks-neoforge-1.21.1-1.0.1.jar",
+      "hash": "cccd208606d7ac33f483e1e8a237092712a1a2c0"
+    },
+    {
+      "path": "resourcepacks/Faithful 32x - 1.21.1.zip",
+      "hash": "cf90d965473549d3d642b835071c6472d60bcf7b"
+    },
+    {
+      "path": "resourcepacks/Xray_Ultimate_26.X_v5.4.2.zip",
+      "hash": "a463542073c5cf923979691ed05100a3c3f291a7"
+    },
+    {
+      "path": "shaderpacks/ComplementaryReimagined_r5.8.1.zip",
+      "hash": "5a021081f0178ed91dd911194071465ab0a4348b"
+    },
+    {
+      "path": "servers.dat",
+      "hash": "b20d0433e10d07a744a8b1067907b617fa0137fe"
+    }
+  ],
+  "addons": [
+    {
+      "id": "game",
+      "version": "1.21.1"
+    },
+    {
+      "id": "neoforge",
+      "version": "21.1.246"
+    }
+  ]
+}
