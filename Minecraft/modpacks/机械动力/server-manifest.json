@@ -1,6 +1,6 @@
 {
   "name": "机械动力",
-  "author": "czh_1102",
+  "author": "wmzb",
   "version": "91.78.13.67.Pro.Max.Ultra.X",
   "description": "",
   "fileApi": "http://wmzb.us.ci/Minecraft/modpacks/机械动力",
@@ -171,7 +171,7 @@
     },
     {
       "path": "servers.dat",
-      "hash": "b20d0433e10d07a744a8b1067907b617fa0137fe"
+      "hash": "fb48142b5d8a63fc5b0549b4210075f4dc67bab3"
     }
   ],
   "addons": [
