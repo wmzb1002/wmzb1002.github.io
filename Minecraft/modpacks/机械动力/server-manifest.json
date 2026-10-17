@@ -10,12 +10,20 @@
       "hash": "d03f342db41c738252cb9fa932c77616ac1d5ebc"
     },
     {
+      "path": "mods/compactflap-neoforge-1.21.1-1.0.4.1.jar",
+      "hash": "0018b99ee0a82e066d1acad4de389aae2426b812"
+    },
+    {
       "path": "mods/ritchiesprojectilelib-2.1.2+mc.1.21.1-neoforge.jar",
       "hash": "ec2e4996f8bee8714173e603e379fef8a6901765"
     },
     {
       "path": "mods/create-central-kitchen-2.5.0.jar",
       "hash": "caa89b624caad7a9304872a236e74ea4c143972c"
+    },
+    {
+      "path": "mods/ysm-2.6.5-neoforge+mc1.21.1-release.jar",
+      "hash": "18bec74a5b7f3778ce162ddbbbd5555aff0eda2e"
     },
     {
       "path": "mods/jei-1.21.1-neoforge-19.39.0.370.jar",
@@ -80,10 +88,6 @@
     {
       "path": "mods/CreateDragonsPlus-1.11.3.jar",
       "hash": "37e2373216b70893409d2baeae86b02c2bfa65bc"
-    },
-    {
-      "path": "mods/createnuclear-2.0.0-neoforge.jar",
-      "hash": "1e635e4d1d4f636d3f07f17f4fe178e567de128c"
     },
     {
       "path": "mods/CustomSkinLoader_Universal-15.0.1.jar",
@@ -158,6 +162,10 @@
       "hash": "cccd208606d7ac33f483e1e8a237092712a1a2c0"
     },
     {
+      "path": "mods/createnuclear-2.0.0-neoforge.jar",
+      "hash": "1e635e4d1d4f636d3f07f17f4fe178e567de128c"
+    },
+    {
       "path": "resourcepacks/Faithful 32x - 1.21.1.zip",
       "hash": "cf90d965473549d3d642b835071c6472d60bcf7b"
     },
@@ -168,10 +176,6 @@
     {
       "path": "shaderpacks/ComplementaryReimagined_r5.8.1.zip",
       "hash": "5a021081f0178ed91dd911194071465ab0a4348b"
-    },
-    {
-      "path": "servers.dat",
-      "hash": "fb48142b5d8a63fc5b0549b4210075f4dc67bab3"
     }
   ],
   "addons": [
