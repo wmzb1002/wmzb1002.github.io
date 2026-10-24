@@ -1,7 +1,7 @@
 {
   "name": "机械动力",
   "author": "wmzb",
-  "version": "91.78.13.67.Pro.Max.Ultra.X",
+  "version": "91.78.67.13.Pro.Max.Ultra.X",
   "description": "",
   "fileApi": "http://wmzb.us.ci/Minecraft/modpacks/机械动力",
   "files": [
@@ -164,6 +164,18 @@
     {
       "path": "mods/createnuclear-2.0.0-neoforge.jar",
       "hash": "1e635e4d1d4f636d3f07f17f4fe178e567de128c"
+    },
+    {
+      "path": "mods/aeroworks-1.5.0.jar",
+      "hash": "a14ff1c30f3c824b36ee6e2e711a47fd537a5c5f"
+    },
+    {
+      "path": "mods/create_jetpack-forge-5.2.1.jar",
+      "hash": "cbd949c62723d805c2ab019def6e6718c50037b8"
+    },
+    {
+      "path": "mods/kotlinforforge-5.12.0-all.jar",
+      "hash": "a2032c921e93a0ccb0db5d742167e3139c2de01b"
     },
     {
       "path": "resourcepacks/Faithful 32x - 1.21.1.zip",
