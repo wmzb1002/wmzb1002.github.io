@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32 MQTT 临时测试端 (纯净消息+已读)</title>
+    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #1e1e1e; color: #ddd; height: 100vh; display: flex; flex-direction: column; }
+        .header { background: #2d2d2d; padding: 15px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #444; }
+        .status-group { display: flex; gap: 20px; }
+        .status { font-weight: bold; color: #f44336; }
+        .status.connected { color: #4caf50; }
+        .btn { padding: 8px 16px; background: #0066cc; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
+        .btn:hover { background: #005bb5; }
+        .btn.disconnect { background: #f44336; }
+        .btn.disconnect:hover { background: #d32f2f; }
+        .btn:disabled { background: #555; cursor: not-allowed; }
+        .btn.read { background: #ff9800; } /* 已读按钮颜色 */
+        .btn.read:hover { background: #e68a00; }
+        .config-area { background: #252526; padding: 10px 15px; display: flex; gap: 15px; flex-wrap: wrap; border-bottom: 1px solid #444; font-size: 14px; align-items: center; }
+        .config-group { display: flex; align-items: center; gap: 5px; }
+        .config-area input, .config-area select { background: #3c3c3c; color: #ddd; border: 1px solid #555; padding: 5px; border-radius: 4px; }
+        .config-area select { cursor: pointer; }
+        .config-area input:focus { outline: none; border-color: #0066cc; }
+        .chat-box { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .msg { padding: 10px; border-radius: 6px; max-width: 80%; word-break: break-all; font-size: 14px; }
+        .msg.received { background: #2d2d2d; align-self: flex-start; border-left: 3px solid #4caf50; }
+        .msg.sent { background: #0066cc; color: white; align-self: flex-end; border-right: 3px solid #005bb5; }
+        .msg.read-msg { background: #ff9800; color: white; align-self: flex-end; border-right: 3px solid #e68a00; }
+        .msg-time { font-size: 11px; color: #888; margin-bottom: 4px; }
+        .msg.sent .msg-time, .msg.read-msg .msg-time { color: #aad4ff; text-align: right; }
+        
+        /* 系统提示消息样式 */
+        .msg.system { align-self: center; background: transparent; color: #888; font-size: 12px; padding: 4px 10px; border-radius: 12px; text-align: center; border: none; }
+        
+        .input-area { background: #2d2d2d; padding: 15px; display: flex; gap: 10px; border-top: 1px solid #444; }
+        .input-area input { flex: 1; padding: 10px; border: 1px solid #555; background: #1e1e1e; color: #fff; border-radius: 4px; outline: none; }
+        .input-area input:focus { border-color: #0066cc; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="status-group">
+            <div>本机状态: <span id="statusText" class="status">未连接</span></div>
+            <div>对方状态: <span id="peerStatusText" class="status">未知</span></div>
+        </div>
+        <button id="connectBtn" class="btn">连接 MQTT</button>
+    </div>
+
+    <div class="config-area">
+        <div class="config-group">
+            <label>模拟端: </label>
+            <select id="simulateEnd">
+                <option value="L" selected>模拟 L 端 (ESP32-C3)</option>
+                <option value="C">模拟 C 端 (ESP32-S3)</option>
+            </select>
+        </div>
+        <div class="config-group">
+            <label>Host: </label>
+            <input type="text" id="brokerHost" value="broker.emqx.io" size="15">
+        </div>
+        <div class="config-group">
+            <label>Port: </label>
+            <input type="number" id="brokerPort" value="8084" size="5">
+        </div>
+        <div class="config-group">
+            <label>Path: </label>
+            <input type="text" id="brokerPath" value="/mqtt" size="6">
+        </div>
+    </div>
+
+    <div class="config-area" style="border-bottom: 2px solid #0066cc;">
+        <div class="config-group">
+            <label>订阅 Topic (接收): </label>
+            <input type="text" id="subTopic" value="esp32/a8f3k2/c2l" size="25">
+        </div>
+        <div class="config-group">
+            <label>发布 Topic (发送): </label>
+            <input type="text" id="pubTopic" value="esp32/a8f3k2/l2c" size="25">
+        </div>
+    </div>
+
+    <div class="chat-box" id="chatBox">
+        <!-- 消息将显示在这里 -->
+    </div>
+
+    <div class="input-area">
+        <input type="text" id="msgInput" placeholder="输入要发送给 ESP32 的消息..." disabled>
+        <button id="ackReadBtn" class="btn read" disabled>发送已读</button>
+        <button id="sendBtn" class="btn" disabled>发送</button>
+    </div>
+
+    <script>
+        const statusText = document.getElementById('statusText');
+        const peerStatusText = document.getElementById('peerStatusText');
+        const connectBtn = document.getElementById('connectBtn');
+        const sendBtn = document.getElementById('sendBtn');
+        const ackReadBtn = document.getElementById('ackReadBtn');
+        const msgInput = document.getElementById('msgInput');
+        const chatBox = document.getElementById('chatBox');
+        
+        const simulateEnd = document.getElementById('simulateEnd');
+        const subTopicInput = document.getElementById('subTopic');
+        const pubTopicInput = document.getElementById('pubTopic');
+
+        let client = null;
+        let isConnected = false;
+        let simulateClientId = "";
+        let isPeerOnline = false;
+        
+        // 定时器
+        let heartbeatTimer = null;
+        let peerTimeoutTimer = null;
+
+        // 定义两端的 Topic 规则
+        const TOPICS = {
+            L: { pub: "esp32/a8f3k2/l2c", sub: "esp32/a8f3k2/c2l" },
+            C: { pub: "esp32/a8f3k2/c2l", sub: "esp32/a8f3k2/l2c" }
+        };
+
+        // 接线编码映射表
+        const PIN_MAP = {
+            "1-3": "可以",
+            "1-4": "不行",
+            "1-5": "15号楼/车站",
+            "1-6": "足球场",
+            "1-7": "滑梯",
+            "1-20": "气膜馆",
+            "3-4": "立刻",
+            "3-5": "30min",
+            "3-6": "1h",
+            "3-7": "2h",
+            "3-20": "1",
+            "4-5": "2",
+            "4-6": "3",
+            "4-7": "4",
+            "4-20": "已读",
+            "7-20": "检查连接状态"
+        };
+
+        // 切换模拟端时自动更新 Topic
+        simulateEnd.addEventListener('change', (e) => {
+            const end = e.target.value;
+            if (TOPICS[end]) {
+                subTopicInput.value = TOPICS[end].sub;
+                pubTopicInput.value = TOPICS[end].pub;
+            }
+        });
+
+        function getTime() {
+            return new Date().toLocaleTimeString();
+        }
+
+        // 添加消息到界面
+        function appendMessage(text, type = 'received', isSystem = false) {
+            const div = document.createElement('div');
+            
+            if (isSystem) {
+                div.className = 'msg system';
+            } else {
+                div.className = `msg ${type}`;
+            }
+
+            if (!isSystem) {
+                const timeDiv = document.createElement('div');
+                timeDiv.className = 'msg-time';
+                timeDiv.innerText = getTime();
+                div.appendChild(timeDiv);
+            }
+            
+            const textDiv = document.createElement('div');
+            textDiv.innerText = text;
+            div.appendChild(textDiv);
+            
+            chatBox.appendChild(div);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // 更新对方在线状态
+        function setPeerStatus(online) {
+            if (isPeerOnline === online) return;
+            isPeerOnline = online;
+            if (online) {
+                peerStatusText.innerText = "在线";
+                peerStatusText.className = "status connected";
+                appendMessage("对方已上线", 'received', true);
+            } else {
+                peerStatusText.innerText = "离线 (超时)";
+                peerStatusText.className = "status";
+                appendMessage("对方已离线 (30秒未收到消息)", 'received', true);
+            }
+        }
+
+        // 重置对方超时定时器 (30秒)
+        function resetPeerTimeout() {
+            setPeerStatus(true);
+            clearTimeout(peerTimeoutTimer);
+            peerTimeoutTimer = setTimeout(() => {
+                setPeerStatus(false);
+            }, 30000);
+        }
+
+        // 发送心跳包 (底层发送，界面不显示)
+        function sendHeartbeat() {
+            if (client && isConnected) {
+                client.publish(pubTopicInput.value.trim(), `[HEARTBEAT]${simulateClientId}`);
+            }
+        }
+
+        // 解析 PIN 消息，转换为人性化文本
+        function parsePinMessage(msg) {
+            const colonIndex = msg.indexOf(':');
+            if (colonIndex === -1) return msg;
+            
+            const clientId = msg.substring(5, colonIndex);
+            const pairsStr = msg.substring(colonIndex + 1);
+            
+            if (pairsStr === 'none') return `${clientId}: 无引脚连接`;
+            
+            const pairs = pairsStr.split(',');
+            const parsed = pairs.map(p => {
+                if (p.startsWith('PIN_')) {
+                    const nums = p.substring(4).replace('_', '-');
+                    const mapText = PIN_MAP[nums];
+                    return mapText ? `${nums}:${mapText}` : nums;
+                }
+                return p;
+            });
+            
+            return `${clientId}: ${parsed.join(' ')}`;
+        }
+
+        // 连接 MQTT
+        function connectMQTT() {
+            const host = document.getElementById('brokerHost').value.trim();
+            const port = document.getElementById('brokerPort').value.trim();
+            const path = document.getElementById('brokerPath').value.trim();
+            const cleanPath = path.startsWith('/') ? path : '/' + path;
+            const brokerUrl = `wss://${host}:${port}${cleanPath}`;
+
+            const subTopic = subTopicInput.value.trim();
+            const targetEnd = simulateEnd.value;
+            simulateClientId = `CLIENT_${targetEnd}`;
+
+            statusText.innerText = '正在连接...';
+            statusText.className = 'status';
+
+            client = mqtt.connect(brokerUrl, {
+                clientId: 'web_sim_' + targetEnd + '_' + Math.random().toString(16).substr(2, 6),
+                connectTimeout: 5000,
+                clean: true
+            });
+
+            client.on('connect', () => {
+                isConnected = true;
+                statusText.innerText = `已连接`;
+                statusText.className = 'status connected';
+                connectBtn.innerText = '断开连接';
+                connectBtn.className = 'btn disconnect';
+                
+                msgInput.disabled = false;
+                sendBtn.disabled = false;
+                ackReadBtn.disabled = false;
+
+                client.subscribe(subTopic, (err) => {
+                    if (!err) {
+                        appendMessage(`已连接，身份: ${simulateClientId}`, 'received', true);
+                        resetPeerTimeout();
+                        
+                        // 连接后立刻发送首次心跳
+                        sendHeartbeat();
+                        // 开启定时器
+                        heartbeatTimer = setInterval(sendHeartbeat, 10000);
+                    }
+                });
+            });
+
+            client.on('message', (topic, message) => {
+                const msgStr = message.toString();
+                resetPeerTimeout();
+
+                // --- 1. 界面显示逻辑 ---
+                if (msgStr.startsWith('[ACK]') || msgStr.startsWith('[HEARTBEAT]')) {
+                    // 不显示
+                } else if (msgStr.startsWith('[PIN]')) {
+                    appendMessage(parsePinMessage(msgStr), 'received');
+                } else {
+                    appendMessage(msgStr, 'received');
+                }
+
+                // --- 2. 自动回复协议逻辑 ---
+                if (msgStr.startsWith('[ACK]')) {
+                    return;
+                }
+                if (msgStr.startsWith('[HEARTBEAT]')) {
+                    client.publish(pubTopicInput.value.trim(), `[ACK]${simulateClientId}:HB`);
+                    return;
+                }
+                if (msgStr.startsWith('[PIN]')) {
+                    client.publish(pubTopicInput.value.trim(), `[ACK]${simulateClientId}:PIN`);
+                    return;
+                }
+                let preview = msgStr.substring(0, 20);
+                client.publish(pubTopicInput.value.trim(), `[ACK]${simulateClientId}:MSG:${preview}`);
+            });
+
+            client.on('error', (err) => {
+                console.error(err);
+                statusText.innerText = '连接错误';
+            });
+
+            client.on('close', () => {
+                cleanup();
+            });
+        }
+
+        function disconnectMQTT() {
+            if (client) {
+                client.end();
+            }
+        }
+
+        function cleanup() {
+            if (heartbeatTimer) clearInterval(heartbeatTimer);
+            if (peerTimeoutTimer) clearTimeout(peerTimeoutTimer);
+            
+            isConnected = false;
+            isPeerOnline = false;
+            statusText.innerText = '未连接';
+            statusText.className = 'status';
+            peerStatusText.innerText = '未知';
+            peerStatusText.className = 'status';
+            
+            connectBtn.innerText = '连接 MQTT';
+            connectBtn.className = 'btn';
+            msgInput.disabled = true;
+            sendBtn.disabled = true;
+            ackReadBtn.disabled = true;
+            
+            if (client) client = null;
+            appendMessage("连接已断开", 'received', true);
+        }
+
+        connectBtn.addEventListener('click', () => {
+            if (isConnected) {
+                disconnectMQTT();
+            } else {
+                connectMQTT();
+            }
+        });
+
+        // 发送已读 (4-20)
+        ackReadBtn.addEventListener('click', () => {
+            if (client && isConnected) {
+                const msg = `[PIN]${simulateClientId}:PIN_4_20`;
+                client.publish(pubTopicInput.value.trim(), msg);
+                appendMessage(parsePinMessage(msg), 'read-msg');
+            }
+        });
+
+        sendBtn.addEventListener('click', () => {
+            const text = msgInput.value.trim();
+            const pubTopic = pubTopicInput.value.trim();
+            if (text && client && isConnected) {
+                client.publish(pubTopic, text);
+                appendMessage(text, 'sent');
+                msgInput.value = '';
+            }
+        });
+
+        msgInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendBtn.click();
+            }
+        });
+    </script>
+</body>
+</html>
