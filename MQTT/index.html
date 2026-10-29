@@ -17,7 +17,7 @@
         .btn.disconnect { background: #f44336; }
         .btn.disconnect:hover { background: #d32f2f; }
         .btn:disabled { background: #555; cursor: not-allowed; }
-        .btn.read { background: #ff9800; } /* 已读按钮颜色 */
+        .btn.read { background: #ff9800; }
         .btn.read:hover { background: #e68a00; }
         .config-area { background: #252526; padding: 10px 15px; display: flex; gap: 15px; flex-wrap: wrap; border-bottom: 1px solid #444; font-size: 14px; align-items: center; }
         .config-group { display: flex; align-items: center; gap: 5px; }
@@ -29,10 +29,13 @@
         .msg.received { background: #2d2d2d; align-self: flex-start; border-left: 3px solid #4caf50; }
         .msg.sent { background: #0066cc; color: white; align-self: flex-end; border-right: 3px solid #005bb5; }
         .msg.read-msg { background: #ff9800; color: white; align-self: flex-end; border-right: 3px solid #e68a00; }
-        .msg-time { font-size: 11px; color: #888; margin-bottom: 4px; }
-        .msg.sent .msg-time, .msg.read-msg .msg-time { color: #aad4ff; text-align: right; }
         
-        /* 系统提示消息样式 */
+        /* O端（广播端）紫色样式 */
+        .msg.o-sent { background: #9c27b0; color: white; align-self: flex-end; border-right: 3px solid #7b1fa2; }
+        
+        .msg-time { font-size: 11px; color: #888; margin-bottom: 4px; }
+        .msg.sent .msg-time, .msg.read-msg .msg-time, .msg.o-sent .msg-time { color: #e0e0e0; text-align: right; }
+        
         .msg.system { align-self: center; background: transparent; color: #888; font-size: 12px; padding: 4px 10px; border-radius: 12px; text-align: center; border: none; }
         
         .input-area { background: #2d2d2d; padding: 15px; display: flex; gap: 10px; border-top: 1px solid #444; }
@@ -45,7 +48,7 @@
     <div class="header">
         <div class="status-group">
             <div>本机状态: <span id="statusText" class="status">未连接</span></div>
-            <div>对方状态: <span id="peerStatusText" class="status">未知</span></div>
+            <div id="peerStatusGroup">对方状态: <span id="peerStatusText" class="status">未知</span></div>
         </div>
         <button id="connectBtn" class="btn">连接 MQTT</button>
     </div>
@@ -55,7 +58,8 @@
             <label>模拟端: </label>
             <select id="simulateEnd">
                 <option value="L" selected>L 端</option>
-                <option value="C">C 端 </option>
+                <option value="C">C 端</option>
+                <option value="O">O 端</option>
             </select>
         </div>
         <div class="config-group">
@@ -73,7 +77,7 @@
     </div>
 
     <div class="config-area" style="border-bottom: 2px solid #0066cc;">
-        <div class="config-group">
+        <div class="config-group" id="subTopicGroup">
             <label>订阅 Topic (接收): </label>
             <input type="text" id="subTopic" value="esp32/a8f3k2/c2l" size="25">
         </div>
@@ -83,9 +87,7 @@
         </div>
     </div>
 
-    <div class="chat-box" id="chatBox">
-        <!-- 消息将显示在这里 -->
-    </div>
+    <div class="chat-box" id="chatBox"></div>
 
     <div class="input-area">
         <input type="text" id="msgInput" placeholder="输入要发送给 ESP32 的消息..." disabled>
@@ -96,6 +98,7 @@
     <script>
         const statusText = document.getElementById('statusText');
         const peerStatusText = document.getElementById('peerStatusText');
+        const peerStatusGroup = document.getElementById('peerStatusGroup');
         const connectBtn = document.getElementById('connectBtn');
         const sendBtn = document.getElementById('sendBtn');
         const ackReadBtn = document.getElementById('ackReadBtn');
@@ -104,6 +107,7 @@
         
         const simulateEnd = document.getElementById('simulateEnd');
         const subTopicInput = document.getElementById('subTopic');
+        const subTopicGroup = document.getElementById('subTopicGroup');
         const pubTopicInput = document.getElementById('pubTopic');
 
         let client = null;
@@ -111,58 +115,49 @@
         let simulateClientId = "";
         let isPeerOnline = false;
         
-        // 定时器
         let heartbeatTimer = null;
         let peerTimeoutTimer = null;
 
-        // 定义两端的 Topic 规则
+        // 定义三端的 Topic 规则
         const TOPICS = {
             L: { pub: "esp32/a8f3k2/l2c", sub: "esp32/a8f3k2/c2l" },
-            C: { pub: "esp32/a8f3k2/c2l", sub: "esp32/a8f3k2/l2c" }
+            C: { pub: "esp32/a8f3k2/c2l", sub: "esp32/a8f3k2/l2c" },
+            O: { pub: "esp32/a8f3k2/o2all", sub: "" } // O端只发不收
         };
 
-        // 接线编码映射表
         const PIN_MAP = {
-            "1-3": "可以",
-            "1-4": "不行",
-            "1-5": "15号楼/车站",
-            "1-6": "足球场",
-            "1-7": "滑梯",
-            "1-20": "气膜馆",
-            "3-4": "立刻",
-            "3-5": "30min",
-            "3-6": "1h",
-            "3-7": "2h",
-            "3-20": "1",
-            "4-5": "2",
-            "4-6": "3",
-            "4-7": "4",
-            "4-20": "已读",
-            "7-20": "检查连接状态"
+            "1-3": "可以", "1-4": "不行", "1-5": "15号楼/车站", "1-6": "足球场",
+            "1-7": "滑梯", "1-20": "气膜馆", "3-4": "立刻", "3-5": "30min",
+            "3-6": "1h", "3-7": "2h", "3-20": "1", "4-5": "2", "4-6": "3",
+            "4-7": "4", "4-20": "已读", "7-20": "检查连接状态"
         };
 
-        // 切换模拟端时自动更新 Topic
         simulateEnd.addEventListener('change', (e) => {
             const end = e.target.value;
             if (TOPICS[end]) {
                 subTopicInput.value = TOPICS[end].sub;
                 pubTopicInput.value = TOPICS[end].pub;
+                
+                if (end === 'O') {
+                    subTopicGroup.style.display = 'none';
+                    peerStatusGroup.style.display = 'none';
+                    ackReadBtn.style.display = 'none';
+                } else {
+                    subTopicGroup.style.display = 'flex';
+                    peerStatusGroup.style.display = 'flex';
+                    ackReadBtn.style.display = 'inline-block';
+                }
             }
         });
 
-        function getTime() {
-            return new Date().toLocaleTimeString();
-        }
+        simulateEnd.dispatchEvent(new Event('change'));
 
-        // 添加消息到界面
+        function getTime() { return new Date().toLocaleTimeString(); }
+
         function appendMessage(text, type = 'received', isSystem = false) {
             const div = document.createElement('div');
-            
-            if (isSystem) {
-                div.className = 'msg system';
-            } else {
-                div.className = `msg ${type}`;
-            }
+            if (isSystem) div.className = 'msg system';
+            else div.className = `msg ${type}`;
 
             if (!isSystem) {
                 const timeDiv = document.createElement('div');
@@ -179,7 +174,6 @@
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        // 更新对方在线状态
         function setPeerStatus(online) {
             if (isPeerOnline === online) return;
             isPeerOnline = online;
@@ -189,37 +183,29 @@
                 appendMessage("对方已上线", 'received', true);
             } else {
                 peerStatusText.innerText = "离线 (超时)";
-                peerStatusText.className = "status";
+                peerStatusText.className = 'status';
                 appendMessage("对方已离线 (30秒未收到消息)", 'received', true);
             }
         }
 
-        // 重置对方超时定时器 (30秒)
         function resetPeerTimeout() {
             setPeerStatus(true);
             clearTimeout(peerTimeoutTimer);
-            peerTimeoutTimer = setTimeout(() => {
-                setPeerStatus(false);
-            }, 30000);
+            peerTimeoutTimer = setTimeout(() => setPeerStatus(false), 30000);
         }
 
-        // 发送心跳包 (底层发送，界面不显示)
         function sendHeartbeat() {
-            if (client && isConnected) {
+            if (client && isConnected && simulateEnd.value !== 'O') {
                 client.publish(pubTopicInput.value.trim(), `[HEARTBEAT]${simulateClientId}`);
             }
         }
 
-        // 解析 PIN 消息，转换为人性化文本
         function parsePinMessage(msg) {
             const colonIndex = msg.indexOf(':');
             if (colonIndex === -1) return msg;
-            
             const clientId = msg.substring(5, colonIndex);
             const pairsStr = msg.substring(colonIndex + 1);
-            
             if (pairsStr === 'none') return `${clientId}: 无引脚连接`;
-            
             const pairs = pairsStr.split(',');
             const parsed = pairs.map(p => {
                 if (p.startsWith('PIN_')) {
@@ -229,11 +215,9 @@
                 }
                 return p;
             });
-            
             return `${clientId}: ${parsed.join(' ')}`;
         }
 
-        // 连接 MQTT
         function connectMQTT() {
             const host = document.getElementById('brokerHost').value.trim();
             const port = document.getElementById('brokerPort').value.trim();
@@ -241,8 +225,8 @@
             const cleanPath = path.startsWith('/') ? path : '/' + path;
             const brokerUrl = `wss://${host}:${port}${cleanPath}`;
 
-            const subTopic = subTopicInput.value.trim();
             const targetEnd = simulateEnd.value;
+            const subTopic = subTopicInput.value.trim();
             simulateClientId = `CLIENT_${targetEnd}`;
 
             statusText.innerText = '正在连接...';
@@ -263,26 +247,26 @@
                 
                 msgInput.disabled = false;
                 sendBtn.disabled = false;
-                ackReadBtn.disabled = false;
-
-                client.subscribe(subTopic, (err) => {
-                    if (!err) {
-                        appendMessage(`已连接，身份: ${simulateClientId}`, 'received', true);
-                        resetPeerTimeout();
-                        
-                        // 连接后立刻发送首次心跳
-                        sendHeartbeat();
-                        // 开启定时器
-                        heartbeatTimer = setInterval(sendHeartbeat, 10000);
-                    }
-                });
+                
+                if (targetEnd !== 'O') {
+                    ackReadBtn.disabled = false;
+                    client.subscribe(subTopic, (err) => {
+                        if (!err) {
+                            appendMessage(`已连接，身份: ${simulateClientId}`, 'received', true);
+                            resetPeerTimeout();
+                            sendHeartbeat();
+                            heartbeatTimer = setInterval(sendHeartbeat, 10000);
+                        }
+                    });
+                } else {
+                    appendMessage(`已连接，身份: ${simulateClientId}`, 'received', true);
+                }
             });
 
             client.on('message', (topic, message) => {
                 const msgStr = message.toString();
                 resetPeerTimeout();
 
-                // --- 1. 界面显示逻辑 ---
                 if (msgStr.startsWith('[ACK]') || msgStr.startsWith('[HEARTBEAT]')) {
                     // 不显示
                 } else if (msgStr.startsWith('[PIN]')) {
@@ -291,10 +275,7 @@
                     appendMessage(msgStr, 'received');
                 }
 
-                // --- 2. 自动回复协议逻辑 ---
-                if (msgStr.startsWith('[ACK]')) {
-                    return;
-                }
+                if (msgStr.startsWith('[ACK]')) return;
                 if (msgStr.startsWith('[HEARTBEAT]')) {
                     client.publish(pubTopicInput.value.trim(), `[ACK]${simulateClientId}:HB`);
                     return;
@@ -307,21 +288,11 @@
                 client.publish(pubTopicInput.value.trim(), `[ACK]${simulateClientId}:MSG:${preview}`);
             });
 
-            client.on('error', (err) => {
-                console.error(err);
-                statusText.innerText = '连接错误';
-            });
-
-            client.on('close', () => {
-                cleanup();
-            });
+            client.on('error', (err) => { statusText.innerText = '连接错误'; });
+            client.on('close', () => { cleanup(); });
         }
 
-        function disconnectMQTT() {
-            if (client) {
-                client.end();
-            }
-        }
+        function disconnectMQTT() { if (client) client.end(); }
 
         function cleanup() {
             if (heartbeatTimer) clearInterval(heartbeatTimer);
@@ -345,14 +316,10 @@
         }
 
         connectBtn.addEventListener('click', () => {
-            if (isConnected) {
-                disconnectMQTT();
-            } else {
-                connectMQTT();
-            }
+            if (isConnected) disconnectMQTT();
+            else connectMQTT();
         });
 
-        // 发送已读 (4-20)
         ackReadBtn.addEventListener('click', () => {
             if (client && isConnected) {
                 const msg = `[PIN]${simulateClientId}:PIN_4_20`;
@@ -366,16 +333,16 @@
             const pubTopic = pubTopicInput.value.trim();
             if (text && client && isConnected) {
                 client.publish(pubTopic, text);
-                appendMessage(text, 'sent');
+                if (simulateEnd.value === 'O') {
+                    appendMessage(`[O端广播] ${text}`, 'o-sent');
+                } else {
+                    appendMessage(text, 'sent');
+                }
                 msgInput.value = '';
             }
         });
 
-        msgInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendBtn.click();
-            }
-        });
+        msgInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendBtn.click(); });
     </script>
 </body>
 </html>
