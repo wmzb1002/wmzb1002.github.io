@@ -31,30 +31,15 @@
         .msg.received { background: #2d2d2d; align-self: flex-start; border-left: 3px solid #4caf50; }
         .msg.sent { background: #0066cc; color: white; align-self: flex-end; border-right: 3px solid #005bb5; }
         .msg.read-msg { background: #ff9800; color: white; align-self: flex-end; border-right: 3px solid #e68a00; }
-        
-        /* O端（广播端）紫色样式 */
         .msg.o-sent { background: #9c27b0; color: white; align-self: flex-end; border-right: 3px solid #7b1fa2; }
-        
         .msg-time { font-size: 11px; color: #888; margin-bottom: 4px; }
         .msg.sent .msg-time, .msg.read-msg .msg-time, .msg.o-sent .msg-time { color: #e0e0e0; text-align: right; }
-        
         .msg.system { align-self: center; background: transparent; color: #888; font-size: 12px; padding: 4px 10px; border-radius: 12px; text-align: center; border: none; }
-        
         .input-area { background: #2d2d2d; padding: 15px; display: flex; gap: 10px; border-top: 1px solid #444; }
         .input-area input { flex: 1; padding: 10px; border: 1px solid #555; background: #1e1e1e; color: #fff; border-radius: 4px; outline: none; }
         .input-area input:focus { border-color: #0066cc; }
-
-        /* 自定义模态框样式 */
-        #alertModal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.7); z-index: 1000;
-            justify-content: center; align-items: center;
-        }
-        .modal-content {
-            background: #2d2d2d; padding: 20px; border-radius: 8px;
-            max-width: 320px; width: 90%; text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-        }
+        #alertModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: #2d2d2d; padding: 20px; border-radius: 8px; max-width: 320px; width: 90%; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
         .modal-content p { margin-bottom: 15px; font-size: 14px; line-height: 1.5; color: #ddd; }
         .modal-content label { display: block; margin-bottom: 20px; font-size: 13px; color: #aaa; cursor: pointer; }
         .modal-content .btn-group { display: flex; gap: 10px; }
@@ -116,7 +101,6 @@
         <button id="sendBtn" class="btn" disabled>发送</button>
     </div>
 
-    <!-- 长度提醒模态框 -->
     <div id="alertModal">
         <div class="modal-content">
             <p>提示：您输入的文本较长（超过8个字符），可能会超出 OLED 屏幕的显示范围。</p>
@@ -146,30 +130,29 @@
         const subTopicGroup = document.getElementById('subTopicGroup');
         const pubTopicInput = document.getElementById('pubTopic');
 
-        // 模态框相关元素
         const alertModal = document.getElementById('alertModal');
         const dontShowAgain = document.getElementById('dontShowAgain');
         const alertCancel = document.getElementById('alertCancel');
         const alertConfirm = document.getElementById('alertConfirm');
         let pendingMessage = "";
 
-        // 仅当前网页会话有效的标记变量（刷新页面即重置）
         let hideWarningThisSession = false;
 
         let client = null;
         let isConnected = false;
         let simulateClientId = "";
         let isPeerOnline = false;
-        
+        let peerEverSeen = false;   // 是否真正收到过对方消息
+
         let heartbeatTimer = null;
         let peerTimeoutTimer = null;
 
-        // ================== ★ 新增：聊天记录持久化（localStorage） ==================
-        const STORAGE_KEY = 'esp32_mqtt_chat_v1';   // 存储键名，改版本号可让旧数据失效
-        const MAX_HISTORY = 300;                    // 最多保留多少条，防止无限增长
-        const PERSIST_SYSTEM_MSG = false;           // 是否也保存"已连接/对方上线"这类系统提示
+        // ================== 聊天记录持久化 ==================
+        const STORAGE_KEY = 'esp32_mqtt_chat_v1';
+        const MAX_HISTORY = 300;
+        const PERSIST_SYSTEM_MSG = false;
 
-        let history = [];  // 已持久化的消息数组
+        let history = [];
 
         function loadHistory() {
             try {
@@ -177,7 +160,6 @@
                 if (!raw) return [];
                 const arr = JSON.parse(raw);
                 if (!Array.isArray(arr)) return [];
-                // 简单校验，避免脏数据把页面搞崩
                 return arr.filter(r => r && typeof r.text === 'string' && typeof r.t === 'number');
             } catch (e) {
                 console.warn('读取聊天记录失败:', e);
@@ -189,12 +171,10 @@
             try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
             } catch (e) {
-                // 无痕模式 / 存储被禁用 / 容量超限
                 console.warn('保存聊天记录失败:', e);
             }
         }
 
-        // 时间格式化：今天只显示时分秒，跨天显示 月/日 时:分
         function fmtTime(ts) {
             const d = new Date(ts);
             const now = new Date();
@@ -205,42 +185,32 @@
             return `${d.getMonth() + 1}/${d.getDate()} ${p(d.getHours())}:${p(d.getMinutes())}`;
         }
 
-        // 只负责"把一个消息记录渲染成 DOM 节点"，不碰存储
         function createMsgEl(rec) {
             const div = document.createElement('div');
             div.className = rec.sys ? 'msg system' : `msg ${rec.type}`;
-
             if (!rec.sys) {
                 const timeDiv = document.createElement('div');
                 timeDiv.className = 'msg-time';
                 timeDiv.innerText = fmtTime(rec.t);
                 div.appendChild(timeDiv);
             }
-
             const textDiv = document.createElement('div');
             textDiv.innerText = rec.text;
             div.appendChild(textDiv);
-
             return div;
         }
 
-        // 统一入口：渲染 + 写入存储
         function appendMessage(text, type = 'received', isSystem = false) {
             const rec = { t: Date.now(), text: text, type: type, sys: isSystem };
-
             chatBox.appendChild(createMsgEl(rec));
             chatBox.scrollTop = chatBox.scrollHeight;
-
             if (PERSIST_SYSTEM_MSG || !isSystem) {
                 history.push(rec);
-                if (history.length > MAX_HISTORY) {
-                    history = history.slice(-MAX_HISTORY);
-                }
+                if (history.length > MAX_HISTORY) history = history.slice(-MAX_HISTORY);
                 saveHistory();
             }
         }
 
-        // 页面加载时把历史记录画出来
         function restoreHistory() {
             history = loadHistory();
             if (history.length === 0) return;
@@ -248,20 +218,83 @@
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        // 清空历史
         clearHistoryBtn.addEventListener('click', () => {
             if (!window.confirm('确定要清空本地保存的聊天记录吗？')) return;
             history = [];
             saveHistory();
             chatBox.innerHTML = '';
         });
-        // ================== 新增结束 ==================
 
-        // 定义三端的 Topic 规则
+        // ================== 在线状态（修复版） ==================
+        // 从协议消息中提取发送者 clientId
+        // [HEARTBEAT]CLIENT_L
+        // [ACK]CLIENT_C:HB / [ACK]CLIENT_C:PIN / [ACK]CLIENT_C:MSG:xxx
+        // [PIN]CLIENT_C:PIN_4_20
+        function extractSenderId(msgStr) {
+            if (msgStr.startsWith('[HEARTBEAT]')) {
+                return msgStr.substring(11).trim() || null;
+            }
+            if (msgStr.startsWith('[ACK]')) {
+                const rest = msgStr.substring(5);
+                const colon = rest.indexOf(':');
+                return (colon === -1 ? rest : rest.substring(0, colon)).trim() || null;
+            }
+            if (msgStr.startsWith('[PIN]')) {
+                const rest = msgStr.substring(5);
+                const colon = rest.indexOf(':');
+                return (colon === -1 ? rest : rest.substring(0, colon)).trim() || null;
+            }
+            return null;
+        }
+
+        function setPeerStatus(online) {
+            if (isPeerOnline === online) return;
+            isPeerOnline = online;
+            if (online) {
+                peerEverSeen = true;
+                peerStatusText.innerText = "在线";
+                peerStatusText.className = "status connected";
+                appendMessage("对方已上线", 'received', true);
+            } else {
+                peerStatusText.innerText = "离线 (超时)";
+                peerStatusText.className = 'status';
+                appendMessage("对方已离线 (30秒未收到消息)", 'received', true);
+            }
+        }
+
+        // 连接后进入"检测中"，30 秒内没收到对方消息则显示"未检测到"
+        function startPeerDetection() {
+            peerEverSeen = false;
+            isPeerOnline = false;
+            peerStatusText.innerText = "检测中...";
+            peerStatusText.className = 'status';
+            clearTimeout(peerTimeoutTimer);
+            peerTimeoutTimer = setTimeout(() => {
+                if (!peerEverSeen) {
+                    peerStatusText.innerText = "离线 (未检测到)";
+                    peerStatusText.className = 'status';
+                }
+            }, 30000);
+        }
+
+        function resetPeerTimeout() {
+            peerEverSeen = true;
+            setPeerStatus(true);
+            clearTimeout(peerTimeoutTimer);
+            peerTimeoutTimer = setTimeout(() => setPeerStatus(false), 30000);
+        }
+
+        function sendHeartbeat() {
+            if (client && isConnected && simulateEnd.value !== 'O') {
+                client.publish(pubTopicInput.value.trim(), `[HEARTBEAT]${simulateClientId}`);
+            }
+        }
+
+        // ================== Topic 与引脚映射 ==================
         const TOPICS = {
             L: { pub: "esp32/a8f3k2/l2c", sub: "esp32/a8f3k2/c2l" },
             C: { pub: "esp32/a8f3k2/c2l", sub: "esp32/a8f3k2/l2c" },
-            O: { pub: "esp32/a8f3k2/o2all", sub: "" } // O端只发不收
+            O: { pub: "esp32/a8f3k2/o2all", sub: "" }
         };
 
         const PIN_MAP = {
@@ -276,7 +309,6 @@
             if (TOPICS[end]) {
                 subTopicInput.value = TOPICS[end].sub;
                 pubTopicInput.value = TOPICS[end].pub;
-                
                 if (end === 'O') {
                     subTopicGroup.style.display = 'none';
                     peerStatusGroup.style.display = 'none';
@@ -290,34 +322,6 @@
         });
 
         simulateEnd.dispatchEvent(new Event('change'));
-
-        function getTime() { return new Date().toLocaleTimeString(); }
-
-        function setPeerStatus(online) {
-            if (isPeerOnline === online) return;
-            isPeerOnline = online;
-            if (online) {
-                peerStatusText.innerText = "在线";
-                peerStatusText.className = "status connected";
-                appendMessage("对方已上线", 'received', true);
-            } else {
-                peerStatusText.innerText = "离线 (超时)";
-                peerStatusText.className = 'status';
-                appendMessage("对方已离线 (30秒未收到消息)", 'received', true);
-            }
-        }
-
-        function resetPeerTimeout() {
-            setPeerStatus(true);
-            clearTimeout(peerTimeoutTimer);
-            peerTimeoutTimer = setTimeout(() => setPeerStatus(false), 30000);
-        }
-
-        function sendHeartbeat() {
-            if (client && isConnected && simulateEnd.value !== 'O') {
-                client.publish(pubTopicInput.value.trim(), `[HEARTBEAT]${simulateClientId}`);
-            }
-        }
 
         function parsePinMessage(msg) {
             const colonIndex = msg.indexOf(':');
@@ -337,6 +341,7 @@
             return `${clientId}: ${parsed.join(' ')}`;
         }
 
+        // ================== 连接 ==================
         function connectMQTT() {
             const host = document.getElementById('brokerHost').value.trim();
             const port = document.getElementById('brokerPort').value.trim();
@@ -363,16 +368,17 @@
                 statusText.className = 'status connected';
                 connectBtn.innerText = '断开连接';
                 connectBtn.className = 'btn disconnect';
-                
+
                 msgInput.disabled = false;
                 sendBtn.disabled = false;
-                
+
                 if (targetEnd !== 'O') {
                     ackReadBtn.disabled = false;
                     client.subscribe(subTopic, (err) => {
                         if (!err) {
                             appendMessage(`已连接，身份: ${simulateClientId}`, 'received', true);
-                            resetPeerTimeout();
+                            // ★ 修复：不再立即 resetPeerTimeout，改为进入"检测中"
+                            startPeerDetection();
                             sendHeartbeat();
                             heartbeatTimer = setInterval(sendHeartbeat, 10000);
                         }
@@ -384,6 +390,12 @@
 
             client.on('message', (topic, message) => {
                 const msgStr = message.toString();
+                const senderId = extractSenderId(msgStr);
+
+                // ★ 修复：忽略自己发出的消息回显，防止误判对方在线
+                if (senderId && senderId === simulateClientId) return;
+
+                // 收到对方消息 → 标记在线并重置超时
                 resetPeerTimeout();
 
                 if (msgStr.startsWith('[ACK]') || msgStr.startsWith('[HEARTBEAT]')) {
@@ -407,7 +419,7 @@
                 client.publish(pubTopicInput.value.trim(), `[ACK]${simulateClientId}:MSG:${preview}`);
             });
 
-            client.on('error', (err) => { statusText.innerText = '连接错误'; });
+            client.on('error', () => { statusText.innerText = '连接错误'; });
             client.on('close', () => { cleanup(); });
         }
 
@@ -416,20 +428,21 @@
         function cleanup() {
             if (heartbeatTimer) clearInterval(heartbeatTimer);
             if (peerTimeoutTimer) clearTimeout(peerTimeoutTimer);
-            
+
             isConnected = false;
             isPeerOnline = false;
+            peerEverSeen = false;
             statusText.innerText = '未连接';
             statusText.className = 'status';
             peerStatusText.innerText = '未知';
             peerStatusText.className = 'status';
-            
+
             connectBtn.innerText = '连接 MQTT';
             connectBtn.className = 'btn';
             msgInput.disabled = true;
             sendBtn.disabled = true;
             ackReadBtn.disabled = true;
-            
+
             if (client) client = null;
             appendMessage("连接已断开", 'received', true);
         }
@@ -462,26 +475,22 @@
             const pubTopic = pubTopicInput.value.trim();
             if (!text || !client || !isConnected) return;
 
-            // 如果是 O 端且长度超过 8，且本次会话未勾选"不再提示"，则弹出模态框
             if (simulateEnd.value === 'O' && text.length > 8 && !hideWarningThisSession) {
                 pendingMessage = text;
-                dontShowAgain.checked = false; // 每次打开默认不勾选
+                dontShowAgain.checked = false;
                 alertModal.style.display = 'flex';
             } else {
                 executeSend(text, pubTopic);
             }
         });
 
-        // 模态框按钮事件
         alertCancel.addEventListener('click', () => {
             alertModal.style.display = 'none';
             pendingMessage = "";
         });
 
         alertConfirm.addEventListener('click', () => {
-            if (dontShowAgain.checked) {
-                hideWarningThisSession = true; // 只在当前页面生效
-            }
+            if (dontShowAgain.checked) hideWarningThisSession = true;
             alertModal.style.display = 'none';
             if (pendingMessage) {
                 executeSend(pendingMessage, pubTopicInput.value.trim());
@@ -491,7 +500,6 @@
 
         msgInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendBtn.click(); });
 
-        // ★ 页面初始化：把上次的聊天记录恢复出来
         restoreHistory();
     </script>
 </body>
