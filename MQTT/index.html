@@ -19,6 +19,8 @@
         .btn:disabled { background: #555; cursor: not-allowed; }
         .btn.read { background: #ff9800; }
         .btn.read:hover { background: #e68a00; }
+        .btn.ghost { background: #555; }
+        .btn.ghost:hover { background: #666; }
         .config-area { background: #252526; padding: 10px 15px; display: flex; gap: 15px; flex-wrap: wrap; border-bottom: 1px solid #444; font-size: 14px; align-items: center; }
         .config-group { display: flex; align-items: center; gap: 5px; }
         .config-area input, .config-area select { background: #3c3c3c; color: #ddd; border: 1px solid #555; padding: 5px; border-radius: 4px; }
@@ -66,7 +68,10 @@
             <div>本机状态: <span id="statusText" class="status">未连接</span></div>
             <div id="peerStatusGroup">对方状态: <span id="peerStatusText" class="status">未知</span></div>
         </div>
-        <button id="connectBtn" class="btn">连接 MQTT</button>
+        <div style="display:flex; gap:10px;">
+            <button id="clearHistoryBtn" class="btn ghost">清空记录</button>
+            <button id="connectBtn" class="btn">连接 MQTT</button>
+        </div>
     </div>
 
     <div class="config-area">
@@ -134,7 +139,8 @@
         const ackReadBtn = document.getElementById('ackReadBtn');
         const msgInput = document.getElementById('msgInput');
         const chatBox = document.getElementById('chatBox');
-        
+        const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+
         const simulateEnd = document.getElementById('simulateEnd');
         const subTopicInput = document.getElementById('subTopic');
         const subTopicGroup = document.getElementById('subTopicGroup');
@@ -147,7 +153,7 @@
         const alertConfirm = document.getElementById('alertConfirm');
         let pendingMessage = "";
 
-        // 新增：仅当前网页会话有效的标记变量（刷新页面即重置）
+        // 仅当前网页会话有效的标记变量（刷新页面即重置）
         let hideWarningThisSession = false;
 
         let client = null;
@@ -157,6 +163,99 @@
         
         let heartbeatTimer = null;
         let peerTimeoutTimer = null;
+
+        // ================== ★ 新增：聊天记录持久化（localStorage） ==================
+        const STORAGE_KEY = 'esp32_mqtt_chat_v1';   // 存储键名，改版本号可让旧数据失效
+        const MAX_HISTORY = 300;                    // 最多保留多少条，防止无限增长
+        const PERSIST_SYSTEM_MSG = false;           // 是否也保存"已连接/对方上线"这类系统提示
+
+        let history = [];  // 已持久化的消息数组
+
+        function loadHistory() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (!raw) return [];
+                const arr = JSON.parse(raw);
+                if (!Array.isArray(arr)) return [];
+                // 简单校验，避免脏数据把页面搞崩
+                return arr.filter(r => r && typeof r.text === 'string' && typeof r.t === 'number');
+            } catch (e) {
+                console.warn('读取聊天记录失败:', e);
+                return [];
+            }
+        }
+
+        function saveHistory() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+            } catch (e) {
+                // 无痕模式 / 存储被禁用 / 容量超限
+                console.warn('保存聊天记录失败:', e);
+            }
+        }
+
+        // 时间格式化：今天只显示时分秒，跨天显示 月/日 时:分
+        function fmtTime(ts) {
+            const d = new Date(ts);
+            const now = new Date();
+            const p = n => String(n).padStart(2, '0');
+            if (d.toDateString() === now.toDateString()) {
+                return `${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+            }
+            return `${d.getMonth() + 1}/${d.getDate()} ${p(d.getHours())}:${p(d.getMinutes())}`;
+        }
+
+        // 只负责"把一个消息记录渲染成 DOM 节点"，不碰存储
+        function createMsgEl(rec) {
+            const div = document.createElement('div');
+            div.className = rec.sys ? 'msg system' : `msg ${rec.type}`;
+
+            if (!rec.sys) {
+                const timeDiv = document.createElement('div');
+                timeDiv.className = 'msg-time';
+                timeDiv.innerText = fmtTime(rec.t);
+                div.appendChild(timeDiv);
+            }
+
+            const textDiv = document.createElement('div');
+            textDiv.innerText = rec.text;
+            div.appendChild(textDiv);
+
+            return div;
+        }
+
+        // 统一入口：渲染 + 写入存储
+        function appendMessage(text, type = 'received', isSystem = false) {
+            const rec = { t: Date.now(), text: text, type: type, sys: isSystem };
+
+            chatBox.appendChild(createMsgEl(rec));
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            if (PERSIST_SYSTEM_MSG || !isSystem) {
+                history.push(rec);
+                if (history.length > MAX_HISTORY) {
+                    history = history.slice(-MAX_HISTORY);
+                }
+                saveHistory();
+            }
+        }
+
+        // 页面加载时把历史记录画出来
+        function restoreHistory() {
+            history = loadHistory();
+            if (history.length === 0) return;
+            history.forEach(rec => chatBox.appendChild(createMsgEl(rec)));
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // 清空历史
+        clearHistoryBtn.addEventListener('click', () => {
+            if (!window.confirm('确定要清空本地保存的聊天记录吗？')) return;
+            history = [];
+            saveHistory();
+            chatBox.innerHTML = '';
+        });
+        // ================== 新增结束 ==================
 
         // 定义三端的 Topic 规则
         const TOPICS = {
@@ -193,26 +292,6 @@
         simulateEnd.dispatchEvent(new Event('change'));
 
         function getTime() { return new Date().toLocaleTimeString(); }
-
-        function appendMessage(text, type = 'received', isSystem = false) {
-            const div = document.createElement('div');
-            if (isSystem) div.className = 'msg system';
-            else div.className = `msg ${type}`;
-
-            if (!isSystem) {
-                const timeDiv = document.createElement('div');
-                timeDiv.className = 'msg-time';
-                timeDiv.innerText = getTime();
-                div.appendChild(timeDiv);
-            }
-            
-            const textDiv = document.createElement('div');
-            textDiv.innerText = text;
-            div.appendChild(textDiv);
-            
-            chatBox.appendChild(div);
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
 
         function setPeerStatus(online) {
             if (isPeerOnline === online) return;
@@ -383,7 +462,7 @@
             const pubTopic = pubTopicInput.value.trim();
             if (!text || !client || !isConnected) return;
 
-            // 如果是 O 端且长度超过 8，且本次会话未勾选“不再提示”，则弹出模态框
+            // 如果是 O 端且长度超过 8，且本次会话未勾选"不再提示"，则弹出模态框
             if (simulateEnd.value === 'O' && text.length > 8 && !hideWarningThisSession) {
                 pendingMessage = text;
                 dontShowAgain.checked = false; // 每次打开默认不勾选
@@ -411,6 +490,9 @@
         });
 
         msgInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendBtn.click(); });
+
+        // ★ 页面初始化：把上次的聊天记录恢复出来
+        restoreHistory();
     </script>
 </body>
 </html>
