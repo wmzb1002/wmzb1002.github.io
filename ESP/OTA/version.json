@@ -1,18 +1,27 @@
 {
   "schema": 1,
-  "updated_at": "2026-11-07T10:21:42Z",
+  "updated_at": "2026-11-07T10:32:53Z",
   "firmwares": {
     "CLIENT_C_S3": {
       "latest": {
-        "version": "1.0.2",
+        "version": "1.0.3",
         "chip": "S3",
-        "url": "https://ota.wmzb.us.ci//ClientC/S3%20v1.0.2.bin",
-        "size": 1352368,
-        "sha256": "7cd1a73bfcc9fa0d1cb8f78f9585cd9e625056034a3aed7da76b6a470362fa2d",
-        "uploaded_at": "2026-11-07T10:21:42Z",
-        "notes": "处理OLED显示问题"
+        "url": "https://ota.wmzb.us.ci//ClientC/S3%20v1.0.3.bin",
+        "size": 1353664,
+        "sha256": "dda66d9e7c0398daf0de7f36b6677e8fe9e307150f7207e8265779b00715d062",
+        "uploaded_at": "2026-11-07T10:32:53Z",
+        "notes": "更新HTTP及日志相关"
       },
       "history": [
+        {
+          "version": "1.0.2",
+          "chip": "S3",
+          "url": "https://ota.wmzb.us.ci//ClientC/S3%20v1.0.2.bin",
+          "size": 1352368,
+          "sha256": "7cd1a73bfcc9fa0d1cb8f78f9585cd9e625056034a3aed7da76b6a470362fa2d",
+          "uploaded_at": "2026-11-07T10:21:42Z",
+          "notes": "处理OLED显示问题"
+        },
         {
           "version": "1.0.0",
           "chip": "S3",
