@@ -1,18 +1,27 @@
 {
   "schema": 1,
-  "updated_at": "2026-11-07T13:33:57Z",
+  "updated_at": "2026-11-07T13:58:44Z",
   "firmwares": {
     "CLIENT_C_S3": {
       "latest": {
-        "version": "1.1.6",
+        "version": "1.1.7",
         "chip": "S3",
-        "url": "https://ota.wmzb.us.ci//ClientC/S3%20v1.1.6.bin",
+        "url": "https://ota.wmzb.us.ci//ClientC/S3%20v1.1.7.bin",
         "size": 1134016,
-        "sha256": "f9f8d98196d0b42658778e4685a7fb24de036814d407f9c5ba9bd2ae032697ac",
-        "uploaded_at": "2026-11-07T13:29:36Z",
-        "notes": "启用淘晶池串口屏"
+        "sha256": "f9dd5fb11b39aad4f5b19435127de51b72844e312cc29a14157680e86e212d98",
+        "uploaded_at": "2026-11-07T13:58:44Z",
+        "notes": "修正串口屏"
       },
       "history": [
+        {
+          "version": "1.1.6",
+          "chip": "S3",
+          "url": "https://ota.wmzb.us.ci//ClientC/S3%20v1.1.6.bin",
+          "size": 1134016,
+          "sha256": "8c7bd83791c44eac5080384dd26e0769dce8f01092830e9d3bf3fa69a3639e81",
+          "uploaded_at": "2026-11-07T13:29:36Z",
+          "notes": "启用淘晶池串口屏"
+        },
         {
           "version": "1.0.6",
           "chip": "S3",
