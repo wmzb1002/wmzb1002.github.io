@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_at": "2026-11-07T14:31:03Z",
+  "updated_at": "2026-11-08T06:44:21Z",
   "firmwares": {
     "CLIENT_C_S3": {
       "latest": {
@@ -30,6 +30,15 @@
           "sha256": "8c7bd83791c44eac5080384dd26e0769dce8f01092830e9d3bf3fa69a3639e81",
           "uploaded_at": "2026-11-07T13:29:36Z",
           "notes": "启用淘晶池串口屏"
+        },
+        {
+          "version": "1.0.10",
+          "chip": "S3",
+          "url": "https://ota.wmzb.us.ci//ClientC/S3%20v1.0.10.bin",
+          "size": 1361808,
+          "sha256": "fd43df96e77ea3e7a14c9112f6b42dc60a455d1799b56675451edbac14cb95a4",
+          "uploaded_at": "2026-11-08T06:44:21Z",
+          "notes": "回退至OLED屏"
         },
         {
           "version": "1.0.6",
