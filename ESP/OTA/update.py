@@ -2,9 +2,15 @@
 """
 扫描 ESP/OTA/ClientC 和 ESP/OTA/ClientL 下的 .bin 固件，增量更新 version.json。
 
-行为：
-  - 新固件（JSON 中不存在的 key+version）：交互式要求输入更新说明
-  - 已有固件且 sha256 相同：跳过，不打扰
+latest 判定规则（不再按版本号最高）：
+  1. 本次新出现的条目（JSON 里原本没有 key+version）→ 作为 latest
+     多个新出现时，取 mtime 最新的；mtime 相同则版本字符串最大的
+  2. 本次没有新出现 → 保持原 JSON 的 latest 不变
+  3. 兜底：原 JSON 无该 key 且本次无新出现（理论上不会发生）→ 版本号最高
+
+其它行为：
+  - 新固件（本次新出现）：交互式要求输入更新说明
+  - 已有固件且 sha256 相同：跳过
   - 已有固件但 sha256 变了（重新编译）：保留原 notes，不询问
   - 非交互环境（CI/管道）：新固件 notes 默认留空，或读同名 .txt 兜底
 """
@@ -97,16 +103,18 @@ def scan_all() -> list:
                 continue
             chip    = m.group(1).upper()
             version = m.group(2)
+            stat    = bin_path.stat()
             results.append({
                 "key":      f"{device_id}_{chip}",
                 "chip":     chip,
                 "version":  version,
                 "filename": bin_path.name,
                 "path":     bin_path,
-                "size":     bin_path.stat().st_size,
+                "size":     stat.st_size,
+                "mtime":    stat.st_mtime,   # 用于判定"新出现"中的最新
                 "sha256":   sha256_of(bin_path),
                 "url":      build_url(dname, bin_path.name),
-                "notes":    load_notes_txt(bin_path),   # 默认值，交互时可能被覆盖
+                "notes":    load_notes_txt(bin_path),
             })
     # 去重
     seen = {}
@@ -128,6 +136,14 @@ def build_lookup(existing: dict) -> dict:
             lookup[(key, e["version"])] = e
     return lookup
 
+def build_existing_latest(existing: dict) -> dict:
+    """原 JSON 里每个 key 的 latest 版本"""
+    out = {}
+    for key, block in existing.get("firmwares", {}).items():
+        if isinstance(block.get("latest"), dict):
+            out[key] = block["latest"]["version"]
+    return out
+
 # ====== 合并 ======
 def build_entry(info: dict, existing: Optional[dict]) -> Optional[dict]:
     if existing and existing.get("sha256") == info["sha256"]:
@@ -144,8 +160,11 @@ def build_entry(info: dict, existing: Optional[dict]) -> Optional[dict]:
 
 def merge(existing: dict, scanned: list):
     lookup = build_lookup(existing)
+    existing_latest = build_existing_latest(existing)
+
     grouped = {}
     added, updated, skipped = [], [], []
+    new_appeared = {}   # key -> [(version, mtime)]
 
     for info in scanned:
         k = (info["key"], info["version"])
@@ -156,13 +175,17 @@ def merge(existing: dict, scanned: list):
             skipped.append(f"{info['key']} v{info['version']}")
             grouped.setdefault(info["key"], []).append(old)
         else:
-            if old:
-                updated.append(f"{info['key']} v{info['version']}  {entry['notes']}")
-            else:
+            if old is None:
+                # 本次新出现
                 added.append(f"{info['key']} v{info['version']}  {entry['notes']}")
+                new_appeared.setdefault(info["key"], []).append(
+                    (info["version"], info["mtime"])
+                )
+            else:
+                updated.append(f"{info['key']} v{info['version']}  {entry['notes']}")
             grouped.setdefault(info["key"], []).append(entry)
 
-    # 保留 JSON 里已有但目录里没了的条目（历史不丢）
+    # 保留 JSON 里已有但目录里没有的条目（历史不丢）
     for (key, ver), entry in lookup.items():
         grouped.setdefault(key, [])
         if not any(e["version"] == ver for e in grouped[key]):
@@ -170,11 +193,46 @@ def merge(existing: dict, scanned: list):
 
     new_firmwares = {}
     for key, entries in grouped.items():
-        entries.sort(key=lambda e: version_key(e["version"]), reverse=True)
+        latest_entry = None
+
+        # 1) 本次有新出现 → 取 mtime 最新；mtime 相同则版本字符串最大的
+        if key in new_appeared and new_appeared[key]:
+            candidates = new_appeared[key]
+            max_mtime = max(c[1] for c in candidates)
+            top = [c for c in candidates if c[1] == max_mtime]
+            top.sort(key=lambda x: x[0], reverse=True)
+            target_ver = top[0][0]
+            for e in entries:
+                if e["version"] == target_ver:
+                    latest_entry = e
+                    break
+
+        # 2) 本次没有新出现 → 保持原 latest
+        if latest_entry is None and key in existing_latest:
+            old_ver = existing_latest[key]
+            for e in entries:
+                if e["version"] == old_ver:
+                    latest_entry = e
+                    break
+
+        # 3) 兜底：按版本号最高（理论上不会走到这里）
+        if latest_entry is None:
+            sorted_entries = sorted(entries, key=lambda e: version_key(e["version"]), reverse=True)
+            if sorted_entries:
+                latest_entry = sorted_entries[0]
+
+        if latest_entry is None:
+            continue
+
+        # history = 除 latest 外所有条目，按版本号降序
+        history = [e for e in entries if e["version"] != latest_entry["version"]]
+        history.sort(key=lambda e: version_key(e["version"]), reverse=True)
+
         new_firmwares[key] = {
-            "latest":  entries[0],
-            "history": entries[1:],
+            "latest":  latest_entry,
+            "history": history,
         }
+
     return new_firmwares, added, updated, skipped
 
 # ====== 主流程 ======
@@ -184,7 +242,7 @@ def main():
     scanned = scan_all()
     print(f"发现 {len(scanned)} 个 bin\n")
 
-    # ---- 先判断哪些是新增 ----
+    # ---- 先判断哪些是新增（用于交互询问 notes）----
     lookup = build_lookup(existing)
     new_items = [i for i in scanned if (i["key"], i["version"]) not in lookup]
 
@@ -199,9 +257,9 @@ def main():
     # ---- 合并写 JSON ----
     new_firmwares, added, updated, skipped = merge(existing, scanned)
 
-    print("=== 新增 ===")
+    print("=== 新增（本次新出现，latest 可能变化）===")
     for x in (added or ["(无)"]):   print(f"  + {x}")
-    print("\n=== 更新（sha256 变化）===")
+    print("\n=== 更新（sha256 变化，latest 不因此改变）===")
     for x in (updated or ["(无)"]): print(f"  ~ {x}")
     print("\n=== 跳过（无变化）===")
     for x in (skipped or ["(无)"]): print(f"  = {x}")
@@ -217,11 +275,17 @@ def main():
     )
     print(f"\n[written] {JSON_PATH}")
 
-    print("\n=== 当前最新版本 ===")
+    print("\n=== 当前最新版本（latest）===")
     for key, block in sorted(new_firmwares.items()):
         l = block["latest"]
         note = f"  // {l['notes']}" if l.get("notes") else ""
         print(f"  {key:<16} v{l['version']:<10} {l['size']:>8}B  {l['sha256'][:12]}...{note}")
+
+    print("\n=== 历史版本（history）===")
+    for key, block in sorted(new_firmwares.items()):
+        if block["history"]:
+            for h in block["history"]:
+                print(f"  {key:<16} v{h['version']:<10} {h['size']:>8}B")
 
 if __name__ == "__main__":
     main()

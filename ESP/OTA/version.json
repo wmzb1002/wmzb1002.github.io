@@ -1,26 +1,26 @@
 {
   "schema": 1,
-  "updated_at": "2026-11-08T06:44:21Z",
+  "updated_at": "2026-11-12T13:08:28Z",
   "firmwares": {
     "CLIENT_C_S3": {
       "latest": {
-          "version": "1.0.10",
-          "chip": "S3",
-          "url": "https://ota.wmzb.us.ci//ClientC/S3%20v1.0.10.bin",
-          "size": 1361808,
-          "sha256": "fd43df96e77ea3e7a14c9112f6b42dc60a455d1799b56675451edbac14cb95a4",
-          "uploaded_at": "2026-11-08T06:44:21Z",
-          "notes": "回退至OLED屏"
-        },
+        "version": "1.1.11",
+        "chip": "S3",
+        "url": "https://ota.wmzb.us.ci//ClientC/S3%20v1.1.11.bin",
+        "size": 1130880,
+        "sha256": "5f8a4cce5cab3d0ef9d80607a5d1c82b674c400f3d5696695385c3c401f20899",
+        "uploaded_at": "2026-11-12T13:08:28Z",
+        "notes": "更新陶晶池串口屏驱动调用"
+      },
       "history": [
         {
-        "version": "1.1.9",
-        "chip": "S3",
-        "url": "https://ota.wmzb.us.ci//ClientC/S3%20v1.1.9.bin",
-        "size": 1134560,
-        "sha256": "e54af7927871e4a8b0aa27e93bed04e9ead4db65fda0e3d393472eeac9707c19",
-        "uploaded_at": "2026-11-07T14:31:03Z",
-        "notes": "修正串口屏"
+          "version": "1.1.9",
+          "chip": "S3",
+          "url": "https://ota.wmzb.us.ci//ClientC/S3%20v1.1.9.bin",
+          "size": 1134560,
+          "sha256": "e54af7927871e4a8b0aa27e93bed04e9ead4db65fda0e3d393472eeac9707c19",
+          "uploaded_at": "2026-11-07T14:31:03Z",
+          "notes": "修正串口屏"
         },
         {
           "version": "1.1.7",
