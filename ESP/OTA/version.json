@@ -1,18 +1,28 @@
 {
   "schema": 1,
-  "updated_at": "2026-11-12T13:08:28Z",
+  "updated_at": "2026-11-13T12:34:49Z",
   "firmwares": {
     "CLIENT_C_S3": {
       "latest": {
-        "version": "1.1.11",
+        "version": "1.1.12",
         "chip": "S3",
-        "url": "https://ota.wmzb.us.ci//ClientC/S3%20v1.1.11.bin",
-        "size": 1130880,
-        "sha256": "5f8a4cce5cab3d0ef9d80607a5d1c82b674c400f3d5696695385c3c401f20899",
-        "uploaded_at": "2026-11-12T13:08:28Z",
-        "notes": "更新陶晶池串口屏驱动调用"
+        "url": "https://ota.wmzb.us.ci//ClientC/S3%20v1.1.12.bin",
+        "size": 1133120,
+        "sha256": "be708bf3da29b2ee7bdd98be076ddf20bbccc98d8d696a3a6e81a9071eb0cf6f",
+        "force": true,
+        "uploaded_at": "2026-11-13T12:34:49Z",
+        "notes": "增加强制更新功能标签"
       },
       "history": [
+        {
+          "version": "1.1.11",
+          "chip": "S3",
+          "url": "https://ota.wmzb.us.ci//ClientC/S3%20v1.1.11.bin",
+          "size": 1130880,
+          "sha256": "5f8a4cce5cab3d0ef9d80607a5d1c82b674c400f3d5696695385c3c401f20899",
+          "uploaded_at": "2026-11-12T13:08:28Z",
+          "notes": "更新陶晶池串口屏驱动调用"
+        },
         {
           "version": "1.1.9",
           "chip": "S3",

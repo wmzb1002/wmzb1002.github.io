@@ -8,6 +8,11 @@ latest 判定规则（不再按版本号最高）：
   2. 本次没有新出现 → 保持原 JSON 的 latest 不变
   3. 兜底：原 JSON 无该 key 且本次无新出现（理论上不会发生）→ 版本号最高
 
+force 字段：
+  - 新固件时交互式询问是否强制更新，默认 N（非交互环境默认 False）
+  - 已有固件重新编译（sha256 变化）时沿用旧的 force 值
+  - force:true 时设备检测到新版本会静默后台下载，不弹 OLED/TJC 提示
+
 其它行为：
   - 新固件（本次新出现）：交互式要求输入更新说明
   - 已有固件且 sha256 相同：跳过
@@ -87,6 +92,23 @@ def ask_notes(key: str, version: str, default: str = "") -> str:
         return default
     return s if s else default
 
+def ask_force(key: str, version: str, default: bool = False) -> bool:
+    """新固件时询问是否强制更新；非 TTY 环境返回 default（False 更安全）"""
+    if not sys.stdin.isatty():
+        return default
+    hint = "Y/n" if default else "y/N"
+    prompt = f"  强制更新？ [{key} v{version}] ({hint}): "
+    try:
+        s = input(prompt).strip().lower()
+    except (EOFError, KeyboardInterrupt):
+        print()
+        return default
+    if s in ("y", "yes"):
+        return True
+    if s in ("n", "no"):
+        return False
+    return default
+
 # ====== 扫描 ======
 def scan_all() -> list:
     results = []
@@ -111,10 +133,11 @@ def scan_all() -> list:
                 "filename": bin_path.name,
                 "path":     bin_path,
                 "size":     stat.st_size,
-                "mtime":    stat.st_mtime,   # 用于判定"新出现"中的最新
+                "mtime":    stat.st_mtime,
                 "sha256":   sha256_of(bin_path),
                 "url":      build_url(dname, bin_path.name),
                 "notes":    load_notes_txt(bin_path),
+                "force":    False,  # 仅新出现的固件会在 main 里被 ask_force 覆盖
             })
     # 去重
     seen = {}
@@ -148,12 +171,17 @@ def build_existing_latest(existing: dict) -> dict:
 def build_entry(info: dict, existing: Optional[dict]) -> Optional[dict]:
     if existing and existing.get("sha256") == info["sha256"]:
         return None
+    # force 策略：
+    #   - 已有固件重新编译（sha256 变化）：沿用旧 force 值
+    #   - 新出现的固件：用 main 里 ask_force 设置的 info["force"]
+    force = existing.get("force", False) if existing else info.get("force", False)
     return {
         "version":     info["version"],
         "chip":        info["chip"],
         "url":         info["url"],
         "size":        info["size"],
         "sha256":      info["sha256"],
+        "force":       force,
         "uploaded_at": existing["uploaded_at"] if existing else iso_now(),
         "notes":       info["notes"] or (existing.get("notes", "") if existing else ""),
     }
@@ -176,13 +204,12 @@ def merge(existing: dict, scanned: list):
             grouped.setdefault(info["key"], []).append(old)
         else:
             if old is None:
-                # 本次新出现
-                added.append(f"{info['key']} v{info['version']}  {entry['notes']}")
+                added.append(f"{info['key']} v{info['version']}  force={entry['force']}  {entry['notes']}")
                 new_appeared.setdefault(info["key"], []).append(
                     (info["version"], info["mtime"])
                 )
             else:
-                updated.append(f"{info['key']} v{info['version']}  {entry['notes']}")
+                updated.append(f"{info['key']} v{info['version']}  force={entry['force']}  {entry['notes']}")
             grouped.setdefault(info["key"], []).append(entry)
 
     # 保留 JSON 里已有但目录里没有的条目（历史不丢）
@@ -195,7 +222,6 @@ def merge(existing: dict, scanned: list):
     for key, entries in grouped.items():
         latest_entry = None
 
-        # 1) 本次有新出现 → 取 mtime 最新；mtime 相同则版本字符串最大的
         if key in new_appeared and new_appeared[key]:
             candidates = new_appeared[key]
             max_mtime = max(c[1] for c in candidates)
@@ -207,7 +233,6 @@ def merge(existing: dict, scanned: list):
                     latest_entry = e
                     break
 
-        # 2) 本次没有新出现 → 保持原 latest
         if latest_entry is None and key in existing_latest:
             old_ver = existing_latest[key]
             for e in entries:
@@ -215,7 +240,6 @@ def merge(existing: dict, scanned: list):
                     latest_entry = e
                     break
 
-        # 3) 兜底：按版本号最高（理论上不会走到这里）
         if latest_entry is None:
             sorted_entries = sorted(entries, key=lambda e: version_key(e["version"]), reverse=True)
             if sorted_entries:
@@ -224,7 +248,6 @@ def merge(existing: dict, scanned: list):
         if latest_entry is None:
             continue
 
-        # history = 除 latest 外所有条目，按版本号降序
         history = [e for e in entries if e["version"] != latest_entry["version"]]
         history.sort(key=lambda e: version_key(e["version"]), reverse=True)
 
@@ -242,14 +265,15 @@ def main():
     scanned = scan_all()
     print(f"发现 {len(scanned)} 个 bin\n")
 
-    # ---- 先判断哪些是新增（用于交互询问 notes）----
+    # ---- 先判断哪些是新增（用于交互询问 notes / force）----
     lookup = build_lookup(existing)
     new_items = [i for i in scanned if (i["key"], i["version"]) not in lookup]
 
     if new_items:
-        print(f"发现 {len(new_items)} 个新固件，请输入更新说明（直接回车留空）：\n")
+        print(f"发现 {len(new_items)} 个新固件，请输入更新说明与强制策略（直接回车留空/默认）：\n")
         for info in new_items:
             info["notes"] = ask_notes(info["key"], info["version"], info["notes"])
+            info["force"] = ask_force(info["key"], info["version"], False)
         print()
     else:
         print("没有新增固件，跳过输入。\n")
@@ -278,14 +302,16 @@ def main():
     print("\n=== 当前最新版本（latest）===")
     for key, block in sorted(new_firmwares.items()):
         l = block["latest"]
+        force_flag = " [FORCE]" if l.get("force") else ""
         note = f"  // {l['notes']}" if l.get("notes") else ""
-        print(f"  {key:<16} v{l['version']:<10} {l['size']:>8}B  {l['sha256'][:12]}...{note}")
+        print(f"  {key:<16} v{l['version']:<10} {l['size']:>8}B{force_flag}  {l['sha256'][:12]}...{note}")
 
     print("\n=== 历史版本（history）===")
     for key, block in sorted(new_firmwares.items()):
         if block["history"]:
             for h in block["history"]:
-                print(f"  {key:<16} v{h['version']:<10} {h['size']:>8}B")
+                ff = " [FORCE]" if h.get("force") else ""
+                print(f"  {key:<16} v{h['version']:<10} {h['size']:>8}B{ff}")
 
 if __name__ == "__main__":
     main()
