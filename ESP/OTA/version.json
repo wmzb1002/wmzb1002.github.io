@@ -1,19 +1,29 @@
 {
   "schema": 1,
-  "updated_at": "2026-11-13T14:10:38Z",
+  "updated_at": "2026-11-13T14:33:54Z",
   "firmwares": {
     "CLIENT_C_S3": {
       "latest": {
-        "version": "1.1.14",
+        "version": "1.1.15",
         "chip": "S3",
-        "url": "https://ota.wmzb.us.ci//ClientC/S3%20v1.1.14.bin",
-        "size": 1134032,
-        "sha256": "eefef16e0f652311a388cb26525b04f9e8af8ceb2bf62c739e81f7ad09063e60",
+        "url": "https://ota.wmzb.us.ci//ClientC/S3%20v1.1.15.bin",
+        "size": 1139264,
+        "sha256": "7be7d086accf26e32fb1e84b1250c9298f1b8e1dc8a3a83875880a7d820557b6",
         "force": false,
-        "uploaded_at": "2026-11-13T14:10:38Z",
-        "notes": "更新暗码功能"
+        "uploaded_at": "2026-11-13T14:33:54Z",
+        "notes": "OTA断点续传尝试"
       },
       "history": [
+        {
+          "version": "1.1.14",
+          "chip": "S3",
+          "url": "https://ota.wmzb.us.ci//ClientC/S3%20v1.1.14.bin",
+          "size": 1134032,
+          "sha256": "eefef16e0f652311a388cb26525b04f9e8af8ceb2bf62c739e81f7ad09063e60",
+          "force": false,
+          "uploaded_at": "2026-11-13T14:10:38Z",
+          "notes": "更新暗码功能"
+        },
         {
           "version": "1.1.13",
           "chip": "S3",
