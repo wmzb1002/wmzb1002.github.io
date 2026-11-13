@@ -1,19 +1,29 @@
 {
   "schema": 1,
-  "updated_at": "2026-11-13T13:14:48Z",
+  "updated_at": "2026-11-13T13:57:52Z",
   "firmwares": {
     "CLIENT_C_S3": {
       "latest": {
-        "version": "1.1.13",
+        "version": "1.1.01",
         "chip": "S3",
-        "url": "https://ota.wmzb.us.ci//ClientC/S3%20v1.1.13.bin",
+        "url": "https://ota.wmzb.us.ci//ClientC/S3%20v1.1.01.bin",
         "size": 1133184,
-        "sha256": "3347a73249ba23c7df48242b0b2372d68898c7d75063416d006bdc4b437047a8",
+        "sha256": "2f779a1dbe870d592035063f24e072f457d63994ec554c2e84ee4ff5c2e413f4",
         "force": false,
-        "uploaded_at": "2026-11-13T13:14:48Z",
-        "notes": "修复更新相关bug"
+        "uploaded_at": "2026-11-13T13:57:52Z",
+        "notes": "棍母"
       },
       "history": [
+        {
+          "version": "1.1.13",
+          "chip": "S3",
+          "url": "https://ota.wmzb.us.ci//ClientC/S3%20v1.1.13.bin",
+          "size": 1133184,
+          "sha256": "3347a73249ba23c7df48242b0b2372d68898c7d75063416d006bdc4b437047a8",
+          "force": false,
+          "uploaded_at": "2026-11-13T13:14:48Z",
+          "notes": "修复更新相关bug"
+        },
         {
           "version": "1.1.12",
           "chip": "S3",
