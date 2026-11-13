@@ -1,14 +1,14 @@
 {
   "schema": 1,
-  "updated_at": "2026-11-13T12:34:49Z",
+  "updated_at": "2026-11-13T12:50:00Z",
   "firmwares": {
     "CLIENT_C_S3": {
       "latest": {
         "version": "1.1.12",
         "chip": "S3",
         "url": "https://ota.wmzb.us.ci//ClientC/S3%20v1.1.12.bin",
-        "size": 1133120,
-        "sha256": "be708bf3da29b2ee7bdd98be076ddf20bbccc98d8d696a3a6e81a9071eb0cf6f",
+        "size": 1133104,
+        "sha256": "1621715c49643137d9fb20c0667c2f407c260c9c38ed0a8e487ecbc8b2030971",
         "force": true,
         "uploaded_at": "2026-11-13T12:34:49Z",
         "notes": "增加强制更新功能标签"
