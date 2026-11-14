@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_at": "2026-11-13T14:33:54Z",
+  "updated_at": "2026-11-14T14:51:15Z",
   "firmwares": {
     "CLIENT_C_S3": {
       "latest": {
@@ -163,6 +163,19 @@
           "notes": ""
         }
       ]
+    },
+    "CLIENT_L_S3": {
+      "latest": {
+        "version": "1.1.15",
+        "chip": "S3",
+        "url": "https://ota.wmzb.us.ci//ClientL/S3%20v1.1.15.bin",
+        "size": 1138992,
+        "sha256": "19dfbded2a3466ed3acacb546abeb50b03145492454f2bc97e42c02abb90d85f",
+        "force": true,
+        "uploaded_at": "2026-11-14T14:51:15Z",
+        "notes": "L端首个通用陶晶池串口屏版本，与C端功能基本对等。"
+      },
+      "history": []
     }
   }
 }
