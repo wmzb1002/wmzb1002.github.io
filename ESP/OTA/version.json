@@ -11,7 +11,7 @@
         "sha256": "71dde93ba2a2e3cfa04efb5214ae1d58df24dc21a83572f3c47bb600f7cc6570",
         "force": false,
         "uploaded_at": "2026-11-16T12:20:03Z",
-        "notes": "修复了无法使用4-20\r号引脚完成已读操作的问题。"
+        "notes": "修复了无法已读的问题。"
       },
       "history": [
         {
@@ -183,7 +183,7 @@
         "sha256": "95fec27d71e038255032b1ccc21c8864a498f1e3f2c7779ca21a5e86e905cad7",
         "force": false,
         "uploaded_at": "2026-11-16T12:20:03Z",
-        "notes": "修复了无法使用4-20\r号引脚完成已读操作的问题。"
+        "notes": "修复了无法已读的问题。"
       },
       "history": [
         {
