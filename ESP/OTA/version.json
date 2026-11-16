@@ -1,19 +1,29 @@
 {
   "schema": 1,
-  "updated_at": "2026-11-14T14:51:15Z",
+  "updated_at": "2026-11-16T12:20:03Z",
   "firmwares": {
     "CLIENT_C_S3": {
       "latest": {
-        "version": "1.1.15",
+        "version": "1.1.16",
         "chip": "S3",
-        "url": "https://ota.wmzb.us.ci//ClientC/S3%20v1.1.15.bin",
-        "size": 1139264,
-        "sha256": "7be7d086accf26e32fb1e84b1250c9298f1b8e1dc8a3a83875880a7d820557b6",
+        "url": "https://ota.wmzb.us.ci//ClientC/S3%20v1.1.16.bin",
+        "size": 1149168,
+        "sha256": "71dde93ba2a2e3cfa04efb5214ae1d58df24dc21a83572f3c47bb600f7cc6570",
         "force": false,
-        "uploaded_at": "2026-11-13T14:33:54Z",
-        "notes": "OTA断点续传尝试"
+        "uploaded_at": "2026-11-16T12:20:03Z",
+        "notes": "修复了无法使用4-20号引脚完成已读操作的问题。"
       },
       "history": [
+        {
+          "version": "1.1.15",
+          "chip": "S3",
+          "url": "https://ota.wmzb.us.ci//ClientC/S3%20v1.1.15.bin",
+          "size": 1139264,
+          "sha256": "7be7d086accf26e32fb1e84b1250c9298f1b8e1dc8a3a83875880a7d820557b6",
+          "force": false,
+          "uploaded_at": "2026-11-13T14:33:54Z",
+          "notes": "OTA断点续传尝试"
+        },
         {
           "version": "1.1.14",
           "chip": "S3",
@@ -166,16 +176,27 @@
     },
     "CLIENT_L_S3": {
       "latest": {
-        "version": "1.1.15",
+        "version": "1.1.16",
         "chip": "S3",
-        "url": "https://ota.wmzb.us.ci//ClientL/S3%20v1.1.15.bin",
-        "size": 1138992,
-        "sha256": "19dfbded2a3466ed3acacb546abeb50b03145492454f2bc97e42c02abb90d85f",
-        "force": true,
-        "uploaded_at": "2026-11-14T14:51:15Z",
-        "notes": "L端首个通用陶晶池串口屏版本，与C端功能基本对等。"
+        "url": "https://ota.wmzb.us.ci//ClientL/S3%20v1.1.16.bin",
+        "size": 1148864,
+        "sha256": "95fec27d71e038255032b1ccc21c8864a498f1e3f2c7779ca21a5e86e905cad7",
+        "force": false,
+        "uploaded_at": "2026-11-16T12:20:03Z",
+        "notes": "修复了无法使用4-20号引脚完成已读操作的问题。"
       },
-      "history": []
+      "history": [
+        {
+          "version": "1.1.15",
+          "chip": "S3",
+          "url": "https://ota.wmzb.us.ci//ClientL/S3%20v1.1.15.bin",
+          "size": 1138992,
+          "sha256": "19dfbded2a3466ed3acacb546abeb50b03145492454f2bc97e42c02abb90d85f",
+          "force": true,
+          "uploaded_at": "2026-11-14T14:51:15Z",
+          "notes": "L端首个通用陶晶池串口屏版本，与C端功能基本对等。"
+        }
+      ]
     }
   }
 }
