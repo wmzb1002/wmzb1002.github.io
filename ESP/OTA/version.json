@@ -1,19 +1,29 @@
 {
   "schema": 1,
-  "updated_at": "2026-11-16T12:20:03Z",
+  "updated_at": "2026-11-17T11:58:31Z",
   "firmwares": {
     "CLIENT_C_S3": {
       "latest": {
-        "version": "1.1.16",
+        "version": "1.1.17",
         "chip": "S3",
-        "url": "https://ota.wmzb.us.ci//ClientC/S3%20v1.1.16.bin",
-        "size": 1149168,
-        "sha256": "71dde93ba2a2e3cfa04efb5214ae1d58df24dc21a83572f3c47bb600f7cc6570",
+        "url": "https://ota.wmzb.us.ci//ClientC/S3%20v1.1.17.bin",
+        "size": 1139456,
+        "sha256": "ea8bfb39ee44fb6db1a2a1f91716339c4d865b583c28de42be36327f8da5ff83",
         "force": false,
-        "uploaded_at": "2026-11-16T12:20:03Z",
-        "notes": "修复了无法已读的问题。"
+        "uploaded_at": "2026-11-17T11:58:31Z",
+        "notes": "修复已知问题，提升版本稳定性。"
       },
       "history": [
+        {
+          "version": "1.1.16",
+          "chip": "S3",
+          "url": "https://ota.wmzb.us.ci//ClientC/S3%20v1.1.16.bin",
+          "size": 1149168,
+          "sha256": "71dde93ba2a2e3cfa04efb5214ae1d58df24dc21a83572f3c47bb600f7cc6570",
+          "force": false,
+          "uploaded_at": "2026-11-16T12:20:03Z",
+          "notes": "修复了无法已读的问题。"
+        },
         {
           "version": "1.1.15",
           "chip": "S3",
@@ -176,16 +186,26 @@
     },
     "CLIENT_L_S3": {
       "latest": {
-        "version": "1.1.16",
+        "version": "1.1.17",
         "chip": "S3",
-        "url": "https://ota.wmzb.us.ci//ClientL/S3%20v1.1.16.bin",
-        "size": 1148864,
-        "sha256": "95fec27d71e038255032b1ccc21c8864a498f1e3f2c7779ca21a5e86e905cad7",
-        "force": false,
-        "uploaded_at": "2026-11-16T12:20:03Z",
-        "notes": "修复了无法已读的问题。"
+        "url": "https://ota.wmzb.us.ci//ClientL/S3%20v1.1.17.bin",
+        "size": 1139136,
+        "sha256": "f64d33b4d94f6cda9d42870fd55a25801da6d89aa15c7ca6fae850ecdbee38c6",
+        "force": true,
+        "uploaded_at": "2026-11-17T11:58:31Z",
+        "notes": "修复已知问题，提升版本稳定性。"
       },
       "history": [
+        {
+          "version": "1.1.16",
+          "chip": "S3",
+          "url": "https://ota.wmzb.us.ci//ClientL/S3%20v1.1.16.bin",
+          "size": 1148864,
+          "sha256": "95fec27d71e038255032b1ccc21c8864a498f1e3f2c7779ca21a5e86e905cad7",
+          "force": false,
+          "uploaded_at": "2026-11-16T12:20:03Z",
+          "notes": "修复了无法已读的问题。"
+        },
         {
           "version": "1.1.15",
           "chip": "S3",
