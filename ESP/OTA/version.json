@@ -1,19 +1,29 @@
 {
   "schema": 1,
-  "updated_at": "2026-11-21T14:00:02Z",
+  "updated_at": "2026-11-21T14:23:39Z",
   "firmwares": {
     "CLIENT_C_S3": {
       "latest": {
-        "version": "1.1.23",
+        "version": "1.1.24",
         "chip": "S3",
-        "url": "https://ota.wmzb.us.ci//ClientC/S3%20v1.1.23.bin",
-        "size": 1146128,
-        "sha256": "23f7bf02f9563d2eaef3b6c5aad268a8a1b1c8195b6d998c48657c4c2c603762",
+        "url": "https://ota.wmzb.us.ci//ClientC/S3%20v1.1.24.bin",
+        "size": 1146112,
+        "sha256": "b17191d688b873a1f5d2fc7e7d091e0cd81244ba4b3122d911ddcd26a5ca37bc",
         "force": false,
-        "uploaded_at": "2026-11-21T14:00:02Z",
-        "notes": "增加了ESP对串口屏亮度调节中[LIGHT_ON/OFF]指令的支持"
+        "uploaded_at": "2026-11-21T14:23:39Z",
+        "notes": "修复[LIGHT_ON]后RGB可能不能正常亮起的问题"
       },
       "history": [
+        {
+          "version": "1.1.23",
+          "chip": "S3",
+          "url": "https://ota.wmzb.us.ci//ClientC/S3%20v1.1.23.bin",
+          "size": 1146128,
+          "sha256": "23f7bf02f9563d2eaef3b6c5aad268a8a1b1c8195b6d998c48657c4c2c603762",
+          "force": false,
+          "uploaded_at": "2026-11-21T14:00:02Z",
+          "notes": "增加了ESP对串口屏亮度调节中[LIGHT_ON/OFF]指令的支持"
+        },
         {
           "version": "1.1.22",
           "chip": "S3",
