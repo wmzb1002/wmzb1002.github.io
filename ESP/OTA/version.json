@@ -1,19 +1,29 @@
 {
   "schema": 1,
-  "updated_at": "2026-11-21T09:28:00Z",
+  "updated_at": "2026-11-21T10:00:46Z",
   "firmwares": {
     "CLIENT_C_S3": {
       "latest": {
-        "version": "1.1.21",
+        "version": "1.1.22",
         "chip": "S3",
-        "url": "https://ota.wmzb.us.ci//ClientC/S3%20v1.1.21.bin",
-        "size": 1141120,
-        "sha256": "d5318f965e336cb28002e01b16475def64a0fb5a9e07c1cc875fe8accc3d0c9d",
+        "url": "https://ota.wmzb.us.ci//ClientC/S3%20v1.1.22.bin",
+        "size": 1145776,
+        "sha256": "688073490e95a43b7b63a20cbf2ae664d19c9336e3313a97e45852e2854ae647",
         "force": true,
-        "uploaded_at": "2026-11-21T09:28:00Z",
-        "notes": "优化未读消息判定"
+        "uploaded_at": "2026-11-21T10:00:46Z",
+        "notes": "增加历史消息上传功能"
       },
       "history": [
+        {
+          "version": "1.1.21",
+          "chip": "S3",
+          "url": "https://ota.wmzb.us.ci//ClientC/S3%20v1.1.21.bin",
+          "size": 1141120,
+          "sha256": "d5318f965e336cb28002e01b16475def64a0fb5a9e07c1cc875fe8accc3d0c9d",
+          "force": true,
+          "uploaded_at": "2026-11-21T09:28:00Z",
+          "notes": "优化未读消息判定"
+        },
         {
           "version": "1.1.19",
           "chip": "S3",
