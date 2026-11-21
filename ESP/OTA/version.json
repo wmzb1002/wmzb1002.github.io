@@ -1,19 +1,29 @@
 {
   "schema": 1,
-  "updated_at": "2026-11-19T13:15:35Z",
+  "updated_at": "2026-11-21T09:28:00Z",
   "firmwares": {
     "CLIENT_C_S3": {
       "latest": {
-        "version": "1.1.19",
+        "version": "1.1.21",
         "chip": "S3",
-        "url": "https://ota.wmzb.us.ci//ClientC/S3%20v1.1.19.bin",
-        "size": 1139744,
-        "sha256": "f4885df5d0035cb2f1eaa2801bc97701727971a41e8428ebfb8adef0f46475a0",
-        "force": false,
-        "uploaded_at": "2026-11-19T13:15:35Z",
-        "notes": "更改波特率为115200以获得更好的体验，同时更新了掉线判定，并将历史记录显示数提升到了200条。"
+        "url": "https://ota.wmzb.us.ci//ClientC/S3%20v1.1.21.bin",
+        "size": 1141120,
+        "sha256": "d5318f965e336cb28002e01b16475def64a0fb5a9e07c1cc875fe8accc3d0c9d",
+        "force": true,
+        "uploaded_at": "2026-11-21T09:28:00Z",
+        "notes": "优化未读消息判定"
       },
       "history": [
+        {
+          "version": "1.1.19",
+          "chip": "S3",
+          "url": "https://ota.wmzb.us.ci//ClientC/S3%20v1.1.19.bin",
+          "size": 1139744,
+          "sha256": "f4885df5d0035cb2f1eaa2801bc97701727971a41e8428ebfb8adef0f46475a0",
+          "force": false,
+          "uploaded_at": "2026-11-19T13:15:35Z",
+          "notes": "更改波特率为115200以获得更好的体验，同时更新了掉线判定，并将历史记录显示数提升到了200条。"
+        },
         {
           "version": "1.1.17",
           "chip": "S3",
