@@ -1,19 +1,29 @@
 {
   "schema": 1,
-  "updated_at": "2026-11-21T10:00:46Z",
+  "updated_at": "2026-11-21T14:00:02Z",
   "firmwares": {
     "CLIENT_C_S3": {
       "latest": {
-        "version": "1.1.22",
+        "version": "1.1.23",
         "chip": "S3",
-        "url": "https://ota.wmzb.us.ci//ClientC/S3%20v1.1.22.bin",
-        "size": 1145776,
-        "sha256": "688073490e95a43b7b63a20cbf2ae664d19c9336e3313a97e45852e2854ae647",
-        "force": true,
-        "uploaded_at": "2026-11-21T10:00:46Z",
-        "notes": "增加历史消息上传功能"
+        "url": "https://ota.wmzb.us.ci//ClientC/S3%20v1.1.23.bin",
+        "size": 1146128,
+        "sha256": "23f7bf02f9563d2eaef3b6c5aad268a8a1b1c8195b6d998c48657c4c2c603762",
+        "force": false,
+        "uploaded_at": "2026-11-21T14:00:02Z",
+        "notes": "增加了ESP对串口屏亮度调节中[LIGHT_ON/OFF]指令的支持"
       },
       "history": [
+        {
+          "version": "1.1.22",
+          "chip": "S3",
+          "url": "https://ota.wmzb.us.ci//ClientC/S3%20v1.1.22.bin",
+          "size": 1145776,
+          "sha256": "688073490e95a43b7b63a20cbf2ae664d19c9336e3313a97e45852e2854ae647",
+          "force": true,
+          "uploaded_at": "2026-11-21T10:00:46Z",
+          "notes": "增加历史消息上传功能"
+        },
         {
           "version": "1.1.21",
           "chip": "S3",
